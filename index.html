@@ -290,6 +290,17 @@ body[data-mode="doctor"] .wrap,body[data-mode="doctor"] #auth,body[data-mode="do
 .rf.compact td[style*="height"]{height:7.5mm!important}
 .rf.compact .notes{margin-top:1.2mm;padding-top:.5mm;line-height:1.2}
 .rf.compact .meta{margin-top:.8mm}
+.rf.req{font-size:11.5pt;line-height:1.45}
+.rf.req.ths{font-size:15pt;line-height:1.22}
+.rf.req .hdr{min-height:15mm;margin-bottom:1.5mm}
+.rf.req .hdr img{width:14mm;height:14mm}
+.rf.req h2{margin:1.6mm 0 .2mm}
+.rf.req .bf1{margin-top:1mm}.rf.req .bf2{margin-top:2.5mm}
+.rf.req .box{min-height:0;background:none;border-bottom:1px dotted #000}
+.rf.req .box:empty{min-height:2.9em}
+.rf.req .sig{margin-top:2.5mm;gap:0}
+.rf.req table{margin:.8mm 0}
+.rf.req th,.rf.req td{padding:.3mm 1.8mm;line-height:1.25}
 @media print{
   @page{size:A4;margin:14mm 0 12mm}
   html,body.printing{margin:0!important;padding:0!important;background:#fff!important}
@@ -1539,7 +1550,7 @@ function reqModel(c,sig){
   B.push({k:"p",before:1,r:["อนุมัติ",T(appr&&lvl>=2,"อนุเคราะห์"),"จำนวน",V(appr&&lvl>=2?fmt(c.decision.amount):null,5),"บาท",T(appr&&lvl===1,"ค้างชำระ"),"จำนวน",V(appr&&lvl===1?fmt(c.decision.amount):null,5),"บาท"]});
   if(c.finance)B.push({k:"p",sm:1,r:[`การเงินบันทึกแล้ว ${thLong(c.finance.at)}${c.finance.ref?" เลขที่อ้างอิง "+c.finance.ref:""}`]});
   const notes=["1. วงเงินอำนาจอนุมัติเป็นไปตามคำสั่งมอบอำนาจของผู้อำนวยการ นับยอดรวมต่อการรับบริการ 1 ครั้ง หรือต่อการนอนโรงพยาบาล 1 ครั้ง ห้ามแยกใบแจ้งหนี้","2. เจ้าหน้าที่การเงิน พิมพ์รายการค่ารักษาพยาบาลพร้อมส่งเอกสารฉบับนี้คืนกลุ่มงานสังคมสงเคราะห์ เพื่อเสนอผู้มีอำนาจอนุมัติตามวงเงิน","3. กรณีค้างชำระ แนบหนังสือรับสภาพหนี้/สัญญาผ่อนชำระที่นิติกรจัดทำ"];
-  return{onePage:true,title:"แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์",B,notes,meta:metaOf(c),file:`SW-Request_HN${fileHN(c)}_${c.id?code(c).slice(1):"draft"}`};
+  return{cls:"req",title:"แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์",B,notes,meta:metaOf(c),file:`SW-Request_HN${fileHN(c)}_${c.id?code(c).slice(1):"draft"}`};
 }
 
 /* แบบบันทึกงานสังคมสงเคราะห์ (ฉบับ 2569) */
@@ -1610,11 +1621,12 @@ function docHTML(M){
   return h;
 }
 function hasTHSarabun(){try{const x=document.createElement("canvas").getContext("2d");const s="กขคงabcABC123";x.font="40px monospace";const a=x.measureText(s).width;x.font='40px "TH Sarabun New",monospace';const b=x.measureText(s).width;x.font='40px "THSarabunNew",monospace';const c2=x.measureText(s).width;return b!==a||c2!==a}catch(e){return false}}
-function printHTML(html,onePage){
+function printHTML(html,onePage,cls){
   const pa=$("printArea");
   pa.innerHTML=html;
   pa.classList.toggle("ths",hasTHSarabun());
   pa.classList.toggle("compact",!!onePage);
+  pa.classList.toggle("req",cls==="req");
   pa.style.zoom="";
   if(onePage){
     /* ย่อให้พอดี A4 หน้าเดียว: กว้าง 210-34 มม. สูง 297-26 มม. */
@@ -1630,7 +1642,7 @@ function printHTML(html,onePage){
   const imgs=[...pa.querySelectorAll("img")].filter(i=>!i.complete).map(i=>new Promise(r=>{i.onload=i.onerror=r}));
   Promise.race([Promise.all(imgs),new Promise(r=>setTimeout(r,1500))]).then(()=>setTimeout(()=>{try{window.print()}catch(e){} setTimeout(done,1500)},80));
 }
-function printDoc(M){printHTML(docHTML(M),M.onePage)}
+function printDoc(M){printHTML(docHTML(M),M.onePage,M.cls)}
 
 /* Word (.docx) */
 let docxLib=null;
