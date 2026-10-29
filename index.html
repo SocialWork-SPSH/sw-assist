@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="logo.png">
 <title>แบบประเมินพิจารณาอนุเคราะห์</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@500;600;700&display=swap">
@@ -36,6 +38,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 h1,h2,h3{font-family:var(--f-head);text-wrap:balance;margin:0}
 .wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px}
 header.top{display:grid;gap:6px}
+.brand{display:flex;gap:16px;align-items:center}
+.brand>div{display:grid;gap:4px;min-width:0}
+.logo{width:84px;height:84px;flex:none;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+@media (max-width:560px){.logo{width:60px;height:60px}.brand{gap:12px}}
 header.top .org{font-size:14px;color:var(--muted);letter-spacing:.02em}
 header.top h1{font-size:26px;line-height:1.25}
 header.top p{margin:0;color:var(--muted);max-width:70ch}
@@ -208,8 +214,9 @@ table.ut th{color:var(--muted);font-weight:600}
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="org">กลุ่มงานสังคมสงเคราะห์ โรงพยาบาลสมเด็จพระสังฆราช (อมฺพรมหาเถร)</div>
-    <h1>แบบประเมินพิจารณาอนุเคราะห์และการส่งทำค้างชำระ</h1>
+    <div class="brand"><img class="logo" src="logo.png" alt="ตรากลุ่มงานสังคมสงเคราะห์ โรงพยาบาลสมเด็จพระสังฆราช (อมฺพรมหาเถร)" width="84" height="84">
+      <div><div class="org">กลุ่มงานสังคมสงเคราะห์ โรงพยาบาลสมเด็จพระสังฆราช (อมฺพรมหาเถร)</div>
+      <h1>แบบประเมินพิจารณาอนุเคราะห์และการส่งทำค้างชำระ</h1></div></div>
     <p>ประเมินตามหลักเกณฑ์ฉบับปรับปรุง พ.ศ. 2569 แล้วส่งเสนอผู้มีอำนาจอนุมัติตามวงเงินแบบออนไลน์ ผู้อนุมัติเห็นรายการทันทีและบันทึกผลการพิจารณาได้ในหน้านี้</p>
     <div class="who" id="auth"></div>
     <div class="notice warn" id="connMsg" hidden></div>
