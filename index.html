@@ -247,7 +247,7 @@ body[data-mode="doctor"] .wrap,body[data-mode="doctor"] #auth,body[data-mode="do
 .rf h1{font-family:inherit;font-size:1.4em;text-align:center;margin:0;line-height:1.25}
 .rf .lead{text-align:center;font-size:.84em;margin-bottom:1.5mm}
 .rf h2{font-family:inherit;font-size:1em;font-weight:700;margin:2.2mm 0 .4mm;break-after:avoid}
-.rf .sec{break-inside:avoid}
+.rf .sec{break-inside:auto}
 .rf .ln{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:.3em;margin:0}
 .rf .ln>span{flex:none;white-space:nowrap}
 .rf .ln>span.w{flex:1 1 60%;white-space:normal}
@@ -273,9 +273,27 @@ body[data-mode="doctor"] .wrap,body[data-mode="doctor"] #auth,body[data-mode="do
 .rf .notes div{padding-left:5mm;text-indent:-4mm}
 .rf .meta{font-size:.68em;color:#555;margin-top:2mm;line-height:1.3}
 .rf p{margin:0}.rf .c{text-align:center}.rf .r{text-align:right}
+.rf.compact{font-size:10.5pt;line-height:1.32}
+.rf.compact.ths{font-size:14pt;line-height:1.12}
+.rf.compact .hdr{min-height:13mm;padding:0 15mm 1mm;margin-bottom:1mm}
+.rf.compact .hdr img{width:12mm;height:12mm}
+.rf.compact h1{font-size:1.3em}
+.rf.compact .lead{margin-bottom:.5mm}
+.rf.compact h2{margin:1.1mm 0 0}
+.rf.compact .bf1{margin-top:.6mm}.rf.compact .bf2{margin-top:1.5mm}
+.rf.compact .box{min-height:0;background:none;border-bottom:1px dotted #000}
+.rf.compact .box:empty{min-height:2.6em}
+.rf.compact .sig{margin-top:1.2mm;width:56%;gap:0}
+.rf.compact .sig img{height:11mm;margin-bottom:-2.5mm}
+.rf.compact table{margin:.6mm 0}
+.rf.compact th,.rf.compact td{padding:.2mm 1.6mm;line-height:1.2}
+.rf.compact td[style*="height"]{height:7.5mm!important}
+.rf.compact .notes{margin-top:1.2mm;padding-top:.5mm;line-height:1.2}
+.rf.compact .meta{margin-top:.8mm}
 @media print{
-  @page{size:A4;margin:16mm 18mm 14mm}
-  body.printing{padding:0!important;background:#fff!important}
+  @page{size:A4;margin:14mm 0 12mm}
+  html,body.printing{margin:0!important;padding:0!important;background:#fff!important}
+  body.printing #printArea{padding:0 17mm!important;box-sizing:border-box;width:210mm!important}
   body.printing>*:not(#printArea){display:none!important}
   body.printing #printArea{display:block!important}
 }
@@ -1509,7 +1527,6 @@ function reqModel(c,sig){
   if(appr&&+c.decision.amount!==+c.amount)B.push({k:"p",sm:1,r:[`ยอดในตารางเป็นยอดที่อนุมัติ (${fmt(c.decision.amount)} บาท) ยอดที่เสนอเดิม ${fmt(c.amount)} บาท`]});
   B.push({k:"p",first:1,before:1,r:["จึงเรียนมาเพื่อโปรดพิจารณา"]});
   B.push({k:"sig",rows:[["ลงชื่อ",V(null,11),"ผู้ประเมิน"],["(",V(pn(P,c.submittedBy)||null,11),")"],["ตำแหน่ง นักสังคมสงเคราะห์"],["วันที่",V(c.submittedAt?thLong(c.submittedAt):null,9)]]});
-  B.push({k:"pb"});
   B.push({k:"h",r:["ความเห็นแพทย์ผู้รักษา"]});
   B.push({k:"p",ind:1,r:[T(dd&&doc.opinion==="recommend","ผู้ป่วยมีปัญหาเศรษฐกิจ ควรให้การอนุเคราะห์"),T(dd&&doc.opinion==="other","อื่น ๆ"),V(dd?doc.note:null,8)]});
   B.push({k:"sig",img:sig||null,rows:[["ลงชื่อ",V(dd&&!sig?"(ลงนามผ่านระบบ)":null,11),"แพทย์ผู้รักษา"],["(",V(dd?doc.name:null,11),")"],["เลขที่ใบอนุญาตฯ",V(dd?doc.license:null,8)],["วันที่",V(dd?thLong(doc.at):null,9)]]});
@@ -1522,7 +1539,7 @@ function reqModel(c,sig){
   B.push({k:"p",before:1,r:["อนุมัติ",T(appr&&lvl>=2,"อนุเคราะห์"),"จำนวน",V(appr&&lvl>=2?fmt(c.decision.amount):null,5),"บาท",T(appr&&lvl===1,"ค้างชำระ"),"จำนวน",V(appr&&lvl===1?fmt(c.decision.amount):null,5),"บาท"]});
   if(c.finance)B.push({k:"p",sm:1,r:[`การเงินบันทึกแล้ว ${thLong(c.finance.at)}${c.finance.ref?" เลขที่อ้างอิง "+c.finance.ref:""}`]});
   const notes=["1. วงเงินอำนาจอนุมัติเป็นไปตามคำสั่งมอบอำนาจของผู้อำนวยการ นับยอดรวมต่อการรับบริการ 1 ครั้ง หรือต่อการนอนโรงพยาบาล 1 ครั้ง ห้ามแยกใบแจ้งหนี้","2. เจ้าหน้าที่การเงิน พิมพ์รายการค่ารักษาพยาบาลพร้อมส่งเอกสารฉบับนี้คืนกลุ่มงานสังคมสงเคราะห์ เพื่อเสนอผู้มีอำนาจอนุมัติตามวงเงิน","3. กรณีค้างชำระ แนบหนังสือรับสภาพหนี้/สัญญาผ่อนชำระที่นิติกรจัดทำ"];
-  return{title:"แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์",B,notes,meta:metaOf(c),file:`SW-Request_HN${fileHN(c)}_${c.id?code(c).slice(1):"draft"}`};
+  return{onePage:true,title:"แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์",B,notes,meta:metaOf(c),file:`SW-Request_HN${fileHN(c)}_${c.id?code(c).slice(1):"draft"}`};
 }
 
 /* แบบบันทึกงานสังคมสงเคราะห์ (ฉบับ 2569) */
@@ -1593,17 +1610,27 @@ function docHTML(M){
   return h;
 }
 function hasTHSarabun(){try{const x=document.createElement("canvas").getContext("2d");const s="กขคงabcABC123";x.font="40px monospace";const a=x.measureText(s).width;x.font='40px "TH Sarabun New",monospace';const b=x.measureText(s).width;x.font='40px "THSarabunNew",monospace';const c2=x.measureText(s).width;return b!==a||c2!==a}catch(e){return false}}
-function printHTML(html){
+function printHTML(html,onePage){
   const pa=$("printArea");
   pa.innerHTML=html;
   pa.classList.toggle("ths",hasTHSarabun());
+  pa.classList.toggle("compact",!!onePage);
+  pa.style.zoom="";
+  if(onePage){
+    /* ย่อให้พอดี A4 หน้าเดียว: กว้าง 210-34 มม. สูง 297-26 มม. */
+    const mm=96/25.4;
+    Object.assign(pa.style,{display:"block",position:"absolute",left:"-10000px",top:"0",width:(176*mm)+"px"});
+    const h=pa.scrollHeight,avail=(297-26-4)*mm;
+    Object.assign(pa.style,{display:"",position:"",left:"",top:"",width:""});
+    if(h>avail)pa.style.zoom=String(Math.max(.8,Math.floor(avail/h*1000)/1000));
+  }
   document.body.classList.add("printing");
   const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
   window.addEventListener("afterprint",done);
   const imgs=[...pa.querySelectorAll("img")].filter(i=>!i.complete).map(i=>new Promise(r=>{i.onload=i.onerror=r}));
   Promise.race([Promise.all(imgs),new Promise(r=>setTimeout(r,1500))]).then(()=>setTimeout(()=>{try{window.print()}catch(e){} setTimeout(done,1500)},80));
 }
-function printDoc(M){printHTML(docHTML(M))}
+function printDoc(M){printHTML(docHTML(M),M.onePage)}
 
 /* Word (.docx) */
 let docxLib=null;
