@@ -6,138 +6,164 @@
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="logo.png">
-<title>แบบประเมินพิจารณาอนุเคราะห์</title>
+<title>ระบบประเมินและเสนออนุมัติการอนุเคราะห์/ค้างชำระ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@500;600;700&display=swap">
 <style>
-/* Layout: clinical intake form on the left, a live decision slip pinned on the right (stacks on phones) */
+/* Brand: warm paper + the five heart colours of the logo. Clinical form on the left, live decision slip on the right. */
 :root{
-  --bg:#f3f5f7; --paper:#ffffff; --ink:#1b2430; --muted:#5b6675; --line:#d6dce3; --soft:#eaeef2;
-  --accent:#1f5a8a; --accent-soft:#e3edf6;
-  --full:#1e7a4f; --full-soft:#e2f2ea; --part:#9a6a00; --part-soft:#fbf1d9;
-  --debt:#7a3fa0; --debt-soft:#f1e7f7; --norm:#4a5563; --norm-soft:#eceff2;
-  --warn:#b4231b; --warn-soft:#fbe6e4;
+  --bg:#f6f4f0; --paper:#ffffff; --ink:#1f1d1a; --muted:#615c55; --line:#e2ddd4; --soft:#f1ede6;
+  --accent:#245a93; --accent-ink:#ffffff; --accent-soft:#e8eff8;
+  --h1:#e5574b; --h2:#f0b23a; --h3:#4a86c5; --h4:#36a397; --h5:#a08fb0;
+  --full:#1e7a4f; --full-soft:#e3f2ea; --part:#8a5f00; --part-soft:#fbf0d6;
+  --debt:#74409a; --debt-soft:#f2e8f7; --norm:#4d5560; --norm-soft:#edeef0;
+  --warn:#b4231b; --warn-soft:#fbe7e4;
   --f-body:"Sarabun","TH Sarabun New","Leelawadee UI",Tahoma,sans-serif;
   --f-head:"IBM Plex Sans Thai","Sarabun",Tahoma,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#12171d; --paper:#1a2129; --ink:#e6ebf0; --muted:#9aa6b4; --line:#2f3a46; --soft:#232c36;
-  --accent:#7db4e3; --accent-soft:#1d3247;
+  --bg:#151311; --paper:#1e1b18; --ink:#ece7e0; --muted:#a8a197; --line:#36312b; --soft:#29251f;
+  --accent:#8cb8e8; --accent-ink:#0f1620; --accent-soft:#1f2c3b;
   --full:#6fd19f; --full-soft:#183327; --part:#e8b84a; --part-soft:#3a2e12;
   --debt:#c99ae6; --debt-soft:#2f2238; --norm:#b3bdc8; --norm-soft:#262e37;
   --warn:#f08a80; --warn-soft:#3d1d1a; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#12171d; --paper:#1a2129; --ink:#e6ebf0; --muted:#9aa6b4; --line:#2f3a46; --soft:#232c36;
-  --accent:#7db4e3; --accent-soft:#1d3247;
-  --full:#6fd19f; --full-soft:#183327; --part:#e8b84a; --part-soft:#3a2e12;
-  --debt:#c99ae6; --debt-soft:#2f2238; --norm:#b3bdc8; --norm-soft:#262e37;
-  --warn:#f08a80; --warn-soft:#3d1d1a; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 96px}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+a{color:var(--accent)} a:hover{color:var(--ink)}
 h1,h2,h3{font-family:var(--f-head);text-wrap:balance;margin:0}
-.wrap{max-width:1180px;margin:0 auto;display:grid;gap:20px}
-header.top{display:grid;gap:6px}
-.brand{display:flex;gap:16px;align-items:center}
-.brand>div{display:grid;gap:4px;min-width:0}
-.logo{width:84px;height:84px;flex:none;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-@media (max-width:560px){.logo{width:60px;height:60px}.brand{gap:12px}}
-header.top .org{font-size:14px;color:var(--muted);letter-spacing:.02em}
-header.top h1{font-size:26px;line-height:1.25}
-header.top p{margin:0;color:var(--muted);max-width:70ch}
-.example{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--accent-soft);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:15px}
-.example b{color:var(--accent)}
+.appbar{background:var(--paper)}
+.appbar-in{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;
+  padding:14px max(20px,env(safe-area-inset-right,0px)) 14px max(20px,env(safe-area-inset-left,0px))}
+.brand{display:flex;gap:14px;align-items:center;min-width:0}
+.brand>div{display:grid;gap:2px;min-width:0}
+.logo{width:56px;height:56px;flex:none;border-radius:50%}
+.org{font-size:13.5px;color:var(--muted)}
+.brand h1{font-size:21px;line-height:1.3}
+.hearts{display:grid;grid-template-columns:repeat(5,1fr);height:4px}
+.hearts i:nth-child(1){background:var(--h1)}.hearts i:nth-child(2){background:var(--h2)}.hearts i:nth-child(3){background:var(--h3)}.hearts i:nth-child(4){background:var(--h4)}.hearts i:nth-child(5){background:var(--h5)}
+.wrap{max-width:1200px;margin:0 auto;display:grid;gap:18px;padding:18px max(20px,env(safe-area-inset-right,0px)) 110px max(20px,env(safe-area-inset-left,0px))}
+.intro{margin:0;color:var(--muted);max-width:78ch;font-size:15px}
+.who{font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.who b{color:var(--ink);font-weight:600}
+.tabs{position:sticky;top:0;z-index:6;background:var(--bg);display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
+.tab{background:transparent;color:var(--muted);border:0;border-bottom:3px solid transparent;border-radius:0;padding:12px 14px 10px;white-space:nowrap;display:inline-flex;gap:6px;align-items:center;font-weight:600}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--h1);color:#fff;font-size:12px;font-variant-numeric:tabular-nums}
+.badge:empty{display:none}
+.example{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--paper);border:1px dashed var(--h2);border-radius:12px;padding:10px 14px;font-size:15px}
+.example b{color:var(--part)}
+.secnav{display:flex;flex-wrap:wrap;gap:6px}
+.secnav a{display:inline-flex;gap:6px;align-items:center;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:3px 12px 3px 4px;font-size:14px}
+.secnav a b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--soft);color:var(--muted);font-size:12.5px;font-family:var(--f-head)}
+.secnav a.ok b{background:var(--full);color:#fff}
+.secnav a.bad b{background:var(--warn);color:#fff}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
-@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:940px){.grid{grid-template-columns:minmax(0,1fr)}}
 form{display:grid;gap:16px;min-width:0}
-fieldset{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:16px 18px 18px;margin:0;display:grid;gap:14px;min-width:0}
+fieldset{border:1px solid var(--line);background:var(--paper);border-radius:14px;padding:18px 20px 20px;margin:0;display:grid;gap:14px;min-width:0}
 legend{display:contents}
-.sec-h{display:flex;gap:12px;align-items:baseline}
-.sec-n{font-family:var(--f-head);font-weight:700;color:var(--accent);font-size:15px;min-width:1.6em}
-.sec-h h2{font-size:18px}
+.sec-h{display:flex;gap:12px;align-items:flex-start}
+.sec-n{flex:none;display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-family:var(--f-head);font-weight:700;font-size:14px}
+fieldset[data-ok="1"] .sec-n{background:var(--full);color:#fff}
+fieldset[data-ok="0"] .sec-n{background:var(--warn);color:#fff}
+.sec-h h2{font-size:18px;line-height:1.35;padding-top:2px}
 .sec-h small{display:block;color:var(--muted);font-size:14px;font-family:var(--f-body);font-weight:400}
+.sub-h{font-family:var(--f-head);font-size:15px;font-weight:600;margin:4px 0 -4px}
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
-label.f{display:grid;gap:4px;font-size:14px;color:var(--muted)}
-input[type=text],input[type=search],input[type=number],input[type=date],select{font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:7px 10px;width:100%;font-variant-numeric:tabular-nums}
-input:focus-visible,select:focus-visible,button:focus-visible,.opt input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
-.calc{font-size:14px;color:var(--muted)}
+label.f{display:grid;gap:4px;font-size:14px;color:var(--muted);align-content:start}
+input[type=text],input[type=search],input[type=number],input[type=date],input[type=month],input[type=password],input:not([type]),select{font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:7px 10px;width:100%;font-variant-numeric:tabular-nums}
+input:hover,select:hover,textarea.in:hover{border-color:color-mix(in oklab,var(--line),var(--ink) 25%)}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,.opt input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.calc{font-size:14px;color:var(--muted);background:var(--soft);border-radius:8px;padding:8px 12px}
 .calc b{color:var(--ink);font-variant-numeric:tabular-nums}
-.rights{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.rights .r{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:10px;align-items:center;padding:8px 12px;border-top:1px solid var(--line)}
+.rights{display:grid;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.rights .r{display:grid;grid-template-columns:auto minmax(0,1fr) 220px;gap:10px;align-items:center;padding:8px 12px;border-top:1px solid var(--line)}
 .rights .r:first-child{border-top:0}
-@media (max-width:560px){.rights .r{grid-template-columns:minmax(0,1fr)}}
+.rights .r .i{font-family:var(--f-head);font-weight:600;color:var(--muted);font-size:13px;width:1.4em}
+@media (max-width:560px){.rights .r{grid-template-columns:auto minmax(0,1fr)}.rights .r select{grid-column:1/-1}}
 .scale{display:grid;gap:6px}
-.opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:8px 10px;border:1px solid var(--line);border-radius:6px;cursor:pointer;background:var(--paper)}
+.opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:8px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--paper)}
 .opt:hover{background:var(--soft)}
 .opt input{margin-top:5px;accent-color:var(--accent);width:16px;height:16px}
 .opt .k{font-weight:600}
 .opt .d{color:var(--muted);font-size:14px}
 .opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
-.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px}
+.inl{display:flex;flex-wrap:wrap;gap:6px}
+.inl .opt{padding:5px 12px 5px 10px;border-radius:999px;align-items:center}
+.inl .opt input{margin-top:0}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:4px 12px}
 .chk{display:flex;gap:8px;align-items:flex-start;font-size:15px;padding:4px 0}
 .chk input{margin-top:5px;accent-color:var(--accent);width:16px;height:16px;flex:none}
 .note{font-size:14px;color:var(--muted)}
-details.vg summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:15px}
+details.vg summary,details.more summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:15px}
 details.vg .checks{margin-top:8px}
+.restbl{width:100%;border-collapse:collapse;font-size:15px}
+.restbl th{font-weight:600;color:var(--muted);font-size:13.5px;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.restbl td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.restbl td.c,.restbl th.c{text-align:center;width:64px}
+.restbl input[type=checkbox]{accent-color:var(--accent);width:17px;height:17px}
+.restbl input[type=text]{padding:5px 8px;font-size:15px}
+@media (max-width:640px){.restbl thead{display:none}.restbl tr{display:grid;grid-template-columns:1fr auto auto;gap:4px 10px;padding:8px 0;border-bottom:1px solid var(--line)}.restbl td{border:0;padding:0}.restbl td.c{width:auto;font-size:13px;color:var(--muted)}.restbl td.c::after{content:attr(data-l);margin-left:4px}.restbl td:last-child{grid-column:1/-1}}
+textarea.in{font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:7px 10px;width:100%;min-height:76px;resize:vertical}
+textarea.in.sm{min-height:52px}
 /* decision slip */
-aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:grid;gap:12px;min-width:0}
-@media (max-width:900px){aside{position:static}}
-.slip{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.slip .band{padding:14px 16px;display:grid;gap:4px;border-bottom:1px solid var(--line)}
-.slip .lbl{font-size:13px;letter-spacing:.04em;color:var(--muted)}
-.slip .res{font-family:var(--f-head);font-size:24px;font-weight:700;line-height:1.2}
+aside{position:sticky;top:60px;display:grid;gap:12px;min-width:0}
+@media (max-width:940px){aside{position:static}}
+.slip{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.slip .band{padding:16px 18px;display:grid;gap:4px;border-bottom:1px solid var(--line)}
+.slip .lbl{font-size:13px;letter-spacing:.03em;color:var(--muted)}
+.slip .res{font-family:var(--f-head);font-size:25px;font-weight:700;line-height:1.2}
 .slip .sub{font-size:14px;color:var(--muted)}
 .band.full{background:var(--full-soft)} .band.full .res{color:var(--full)}
 .band.part{background:var(--part-soft)} .band.part .res{color:var(--part)}
 .band.debt{background:var(--debt-soft)} .band.debt .res{color:var(--debt)}
 .band.norm{background:var(--norm-soft)} .band.norm .res{color:var(--norm)}
 .band.stop{background:var(--warn-soft)} .band.stop .res{color:var(--warn)}
-.slip .body{padding:12px 16px 16px;display:grid;gap:12px}
+.slip .body{padding:14px 18px 18px;display:grid;gap:14px}
 .slip h3{font-size:15px}
 .slip ul{margin:4px 0 0;padding-left:20px;display:grid;gap:3px;font-size:15px}
-.money{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:15px;font-variant-numeric:tabular-nums}
+.money{display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:15px;font-variant-numeric:tabular-nums;background:var(--soft);border-radius:10px;padding:10px 12px}
 .money span:nth-child(even){text-align:right;font-weight:600}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:2px 10px;border-radius:999px;border:1px solid var(--line)}
-.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
-.dot.red{background:#d33a2c}.dot.yellow{background:#e0b400}.dot.green{background:#2f9e5b}
+.docs{display:grid;border:1px solid var(--line);border-radius:10px}
+.docrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;padding:8px 10px;border-top:1px solid var(--line);font-size:14.5px}
+.docrow:first-child{border-top:0}
+.docrow .btns{gap:6px}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
-button{font:inherit;font-size:15px;font-weight:600;border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--paper)}
+button{font:inherit;font-size:15px;font-weight:600;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink)}
+button:hover{filter:brightness(1.08)}
 button.ghost{background:transparent;color:var(--accent)}
+button.ghost:hover{background:var(--accent-soft);filter:none}
+button.sm{padding:4px 10px;font-size:14px}
+button:disabled{opacity:.45;cursor:not-allowed}
 textarea#summary{position:absolute;left:-9999px;width:1px;height:1px}
 .fine{font-size:13px;color:var(--muted)}
 .bar{display:none}
-@media (max-width:900px){
+@media (max-width:940px){
   .bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;gap:10px;align-items:center;justify-content:space-between;
     background:var(--paper);border-top:1px solid var(--line);
     padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
   .bar .res{font-family:var(--f-head);font-weight:700}
 }
-textarea.in{font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:7px 10px;width:100%;min-height:76px;resize:vertical}
-button:disabled{opacity:.45;cursor:not-allowed}
-/* tabs + online system */
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
-.tab{background:transparent;color:var(--muted);border:0;border-bottom:3px solid transparent;border-radius:0;padding:10px 14px;white-space:nowrap;display:inline-flex;gap:6px;align-items:center}
-.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
-.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--warn);color:var(--paper);font-size:12px;font-variant-numeric:tabular-nums}
-.badge:empty{display:none}
-.who{font-size:14px;color:var(--muted)}
-.who b{color:var(--ink);font-weight:600}
-.notice{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:10px 14px;font-size:15px}
+.notice{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:10px 14px;font-size:15px}
 .notice.warn{background:var(--warn-soft);border-color:transparent}
 .notice.info{background:var(--accent-soft);border-color:transparent}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.stat{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px;border-top:4px solid var(--line)}
+.stat:nth-child(1){border-top-color:var(--h2)}.stat:nth-child(2){border-top-color:var(--h1)}.stat:nth-child(3){border-top-color:var(--h4)}.stat:nth-child(4){border-top-color:var(--h3)}
 .stat .n{font-family:var(--f-head);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
 .stat .l{font-size:13px;color:var(--muted)}
 .filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .fchip{background:var(--paper);color:var(--ink);border:1px solid var(--line);font-weight:500;padding:5px 12px;border-radius:999px;font-size:14px}
-.fchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.fchip:hover{background:var(--soft);filter:none}
+.fchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .filters input{max-width:180px;padding:5px 10px;font-size:15px}
 .qgrid{display:grid;grid-template-columns:400px minmax(0,1fr);gap:20px;align-items:start}
-@media (max-width:900px){.qgrid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:940px){.qgrid{grid-template-columns:minmax(0,1fr)}}
 .qlist{display:grid;gap:8px;min-width:0}
-.qitem{text-align:left;background:var(--paper);color:var(--ink);border:1px solid var(--line);font-weight:400;display:grid;gap:3px;padding:10px 12px;border-radius:8px;width:100%}
-.qitem:hover{background:var(--soft)}
+.qitem{text-align:left;background:var(--paper);color:var(--ink);border:1px solid var(--line);font-weight:400;display:grid;gap:3px;padding:10px 12px;border-radius:10px;width:100%}
+.qitem:hover{background:var(--soft);filter:none}
 .qitem[aria-current="true"]{border-color:var(--accent);box-shadow:inset 4px 0 0 var(--accent)}
 .qitem .t{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:600}
 .qitem .t .amt{font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -147,7 +173,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .st.approved{background:var(--full-soft);color:var(--full)}
 .st.rejected{background:var(--warn-soft);color:var(--warn)}
 .st.returned{background:var(--debt-soft);color:var(--debt)}
-.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:14px;min-width:0}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;gap:14px;min-width:0}
 .panel h2{font-size:19px}
 .panel h3{font-size:15px}
 .kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;font-size:15px}
@@ -162,20 +188,24 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
 .msg{font-size:14px;min-height:1.2em}
 .msg.err{color:var(--warn)} .msg.ok{color:var(--full)}
-.empty{color:var(--muted);font-size:15px;padding:18px;text-align:center;border:1px dashed var(--line);border-radius:8px}
+.empty{color:var(--muted);font-size:15px;padding:18px;text-align:center;border:1px dashed var(--line);border-radius:10px}
 .tier{display:grid;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
 .tier:first-of-type{border-top:0}
 .tier .hd{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
 .tier .hd span{font-size:14px;color:var(--muted)}
 .ppl{display:flex;flex-wrap:wrap;gap:6px}
-.person{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:2px 4px 2px 3px;font-size:14px}
-.person img{width:22px;height:22px;border-radius:50%}
-.person button{background:transparent;border:0;color:var(--muted);padding:0 6px;font-size:16px;line-height:1}
-.srch{position:relative;max-width:360px}
-.sres{display:grid;gap:2px;margin-top:4px}
-.sres button{background:var(--paper);color:var(--ink);border:1px solid var(--line);font-weight:400;text-align:left;display:flex;gap:8px;align-items:center;padding:5px 8px}
-.sres img{width:22px;height:22px;border-radius:50%}
-.editing{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--debt-soft);border-radius:8px;padding:10px 14px;font-size:15px}
+.person{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:14px}
+.editing{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--debt-soft);border-radius:10px;padding:10px 14px;font-size:15px}
+.login{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.login input{max-width:160px;padding:6px 10px}
+.tblwrap{overflow-x:auto}
+table.ut{border-collapse:collapse;width:100%;font-size:15px}
+table.ut th,table.ut td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;white-space:nowrap}
+table.ut th{color:var(--muted);font-weight:600}
+table.ut td.n,table.ut th.n{text-align:right;font-variant-numeric:tabular-nums}
+table.ut tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+table.ut tr.soon td{background:var(--warn-soft)}
+.sync{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
 [hidden]{display:none!important}
 #printArea{display:none}
 .rf{color:#000;background:#fff;font-family:"Sarabun",Tahoma,sans-serif;font-size:12.5pt;line-height:1.38}
@@ -183,13 +213,14 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .rf h1{font-family:inherit;font-size:1.45em;text-align:center;margin:0}
 .rf h2{font-family:inherit;font-size:1em;margin:.45em 0 0;break-after:avoid}
 .rf p{margin:0}
+.rf .pb{break-before:page;height:0}
 .rf .c{text-align:center}.rf .r{text-align:right}.rf .sm{font-size:.86em}.rf .ind{padding-left:1.2em}.rf .first{text-indent:2.5em}
 .rf .bf1{margin-top:.4em}.rf .bf2{margin-top:1.1em}
 .rf .fv{border-bottom:1px dotted #000;padding:0 .3em;font-weight:600}
 .rf .dl{display:inline-block;border-bottom:1px dotted #000;height:1em;vertical-align:baseline}
 .rf table{width:100%;border-collapse:collapse;margin:.3em 0;break-inside:avoid}
 .rf th,.rf td{border:1px solid #000;padding:1px 5px;vertical-align:middle;text-align:left}
-.rf th{background:#e8e8e8;text-align:center}.rf td.n{text-align:right;font-variant-numeric:tabular-nums}.rf td.bold{font-weight:700}
+.rf th{background:#e8e8e8;text-align:center}.rf td.n{text-align:right;font-variant-numeric:tabular-nums}.rf td.bold{font-weight:700}.rf td.cc{text-align:center}
 .rf .notes{margin-top:.6em;font-size:.82em;border-top:1px solid #000;padding-top:.3em}
 .rf .notes div{padding-left:1.4em;text-indent:-1.1em}
 .rf .meta{font-size:.72em;color:#444;margin-top:.4em}
@@ -199,65 +230,76 @@ button:disabled{opacity:.45;cursor:not-allowed}
   body.printing>*:not(#printArea){display:none!important}
   body.printing #printArea{display:block!important}
 }
-@media print{body{background:#fff;color:#000;padding:0}.example,.btns,.bar,.tabs,.filters,.decide,.qlist,.stats{display:none!important}.grid,.qgrid{grid-template-columns:1fr}aside{position:static}}
+@media print{body{background:#fff;color:#000}.example,.btns,.bar,.tabs,.filters,.decide,.qlist,.stats,.secnav{display:none!important}.grid,.qgrid{grid-template-columns:1fr}aside{position:static}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-.login{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.login input{max-width:170px;padding:6px 10px}
-button.sm{padding:4px 10px;font-size:14px}
-.tblwrap{overflow-x:auto}
-table.ut{border-collapse:collapse;width:100%;font-size:15px}
-table.ut th,table.ut td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;white-space:nowrap}
-table.ut th{color:var(--muted);font-weight:600}
-.sync{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand"><img class="logo" src="logo.png" alt="ตรากลุ่มงานสังคมสงเคราะห์ โรงพยาบาลสมเด็จพระสังฆราช (อมฺพรมหาเถร)" width="84" height="84">
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="brand"><img class="logo" src="logo.png" alt="ตรากลุ่มงานสังคมสงเคราะห์ โรงพยาบาลสมเด็จพระสังฆราช (อมฺพรมหาเถร)" width="56" height="56">
       <div><div class="org">กลุ่มงานสังคมสงเคราะห์ โรงพยาบาลสมเด็จพระสังฆราช (อมฺพรมหาเถร)</div>
-      <h1>แบบประเมินพิจารณาอนุเคราะห์และการส่งทำค้างชำระ</h1></div></div>
-    <p>ประเมินตามหลักเกณฑ์ฉบับปรับปรุง พ.ศ. 2569 แล้วส่งเสนอผู้มีอำนาจอนุมัติตามวงเงินแบบออนไลน์ ผู้อนุมัติเห็นรายการทันทีและบันทึกผลการพิจารณาได้ในหน้านี้</p>
+      <h1>ระบบประเมินและเสนออนุมัติการอนุเคราะห์/ค้างชำระ</h1></div></div>
     <div class="who" id="auth"></div>
-    <div class="notice warn" id="connMsg" hidden></div>
-    <div class="panel" id="pinBox" hidden></div>
-  </header>
+  </div>
+  <div class="hearts" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+</header>
+<div class="wrap">
+  <p class="intro">ประเมินตามหลักเกณฑ์ฉบับปรับปรุง ณ วันที่ 27 ตุลาคม 2569 พิมพ์แบบบันทึกงานสังคมสงเคราะห์และแบบขออนุเคราะห์ฯ จากข้อมูลที่กรอก แล้วส่งเสนอผู้มีอำนาจอนุมัติตามวงเงินแบบออนไลน์</p>
+  <div class="notice warn" id="connMsg" hidden></div>
+  <div class="panel" id="pinBox" hidden></div>
 
   <nav class="tabs" role="tablist">
     <button type="button" class="tab" role="tab" id="tab-a" aria-controls="view-a" aria-selected="true">ประเมินรายใหม่</button>
     <button type="button" class="tab" role="tab" id="tab-q" aria-controls="view-q" aria-selected="false">รายการเสนออนุมัติ <span class="badge" id="badgeMine"></span></button>
+    <button type="button" class="tab" role="tab" id="tab-m" aria-controls="view-m" aria-selected="false">รายงานประจำเดือน</button>
     <button type="button" class="tab" role="tab" id="tab-r" aria-controls="view-r" aria-selected="false">ผู้ใช้งานและสิทธิ์</button>
   </nav>
 
   <!-- ===== VIEW A: assessment ===== -->
-  <section id="view-a" role="tabpanel" aria-labelledby="tab-a" style="display:grid;gap:20px">
-  <div class="example" id="exBox"><span><b>ข้อมูลตัวอย่าง</b> เปิดหน้าด้วยกรณีสมมติเพื่อให้เห็นการทำงาน ไม่ใช่ข้อมูลผู้ป่วยจริง และส่งเสนออนุมัติไม่ได้</span><button type="button" class="ghost" id="clearBtn">ล้างข้อมูล เริ่มประเมินรายใหม่</button></div>
+  <section id="view-a" role="tabpanel" aria-labelledby="tab-a" style="display:grid;gap:16px">
+  <div class="example" id="exBox"><span><b>ข้อมูลตัวอย่าง</b> หน้านี้เปิดด้วยกรณีสมมติเพื่อให้เห็นการทำงาน ไม่ใช่ข้อมูลผู้ป่วยจริง และส่งเสนออนุมัติไม่ได้</span><button type="button" class="ghost" id="clearBtn">ล้างข้อมูล เริ่มประเมินรายใหม่</button></div>
   <div class="editing" id="editBox" hidden><span>กำลังแก้ไขรายที่ถูกส่งกลับ <b id="editCode"></b> ส่งใหม่แล้วจะกลับเข้าคิวรอพิจารณา</span><button type="button" class="ghost" id="cancelEdit">ยกเลิกการแก้ไข</button></div>
+  <nav class="secnav" id="secnav" aria-label="ส่วนของแบบประเมิน">
+    <a href="#s1" data-s="1"><b>1</b>ผู้ป่วยและค่าใช้จ่าย</a><a href="#s2" data-s="2"><b>2</b>สิทธิและแหล่งทุน</a><a href="#s3" data-s="3"><b>3</b>เศรษฐกิจ</a><a href="#s4" data-s="4"><b>4</b>บุคคลและความเปราะบาง</a><a href="#s5" data-s="5"><b>5</b>d870</a><a href="#s6" data-s="6"><b>6</b>ค้างชำระ</a><a href="#s7" data-s="7"><b>7</b>ความเห็นและเอกสาร</a><a href="#s8" data-s="8"><b>8</b>แบบบันทึกงานฯ</a>
+  </nav>
 
   <div class="grid">
   <form id="f" autocomplete="off">
-    <fieldset>
-      <legend><div class="sec-h"><span class="sec-n">1</span><h2>ข้อมูลผู้ป่วยและค่าใช้จ่าย<small>บันทึกเฉพาะ HN/AN ไม่ต้องใส่ชื่อผู้ป่วย</small></h2></div></legend>
+    <fieldset id="s1">
+      <legend><div class="sec-h"><span class="sec-n">1</span><h2>ข้อมูลผู้ป่วยและค่าใช้จ่าย<small>บันทึกเฉพาะ HN/AN ชื่อ อายุ ที่อยู่ และการวินิจฉัยโรค ให้เขียนด้วยมือในแบบที่พิมพ์</small></h2></div></legend>
       <div class="row">
         <label class="f">HN<input type="text" id="hn"></label>
         <label class="f">AN<input type="text" id="an"></label>
-        <label class="f">วันที่ประเมิน<input type="date" id="dt"></label>
         <label class="f">ประเภทผู้ป่วย<select id="ptype"><option>ผู้ป่วยนอก (OPD)</option><option>ผู้ป่วยใน (IPD)</option><option>ฉุกเฉิน (ER)</option></select></label>
+        <label class="f">แผนก/หอผู้ป่วย<input type="text" id="ward"></label>
+      </div>
+      <div class="row">
+        <label class="f">วันที่มาโรงพยาบาล<input type="date" id="admitDt"></label>
+        <label class="f">วันกลับ<input type="date" id="dcDt"></label>
+        <label class="f">ส่งปรึกษาวันที่<input type="date" id="consultDt"></label>
+        <label class="f">วันที่ประเมิน<input type="date" id="dt"></label>
       </div>
       <div class="row">
         <label class="f">ค่ารักษาพยาบาลทั้งหมด (บาท)<input type="number" id="cost" min="0" step="1"></label>
-        <label class="f">ส่วนที่สิทธิ/กองทุนครอบคลุม (บาท)<input type="number" id="covered" min="0" step="1"></label>
-        <label class="f">ค่าพาหนะ/อุปกรณ์ที่ขอ (บาท)<input type="number" id="other" min="0" step="1"></label>
+        <label class="f">ส่วนที่สิทธิ/กองทุนจ่าย (บาท)<input type="number" id="covered" min="0" step="1"></label>
+        <label class="f">ค่าพาหนะ (บาท)<input type="number" id="transport" min="0" step="1"></label>
+        <label class="f">ค่าอุปกรณ์/อื่น ๆ (บาท)<input type="number" id="equip" min="0" step="1"></label>
       </div>
-      <div class="calc">ยอดที่ผู้ป่วยต้องรับผิดชอบ <b id="owe">–</b> บาท</div>
+      <label class="f">ระบุอุปกรณ์/รายการอื่น<input type="text" id="equipName" maxlength="80"></label>
+      <div class="calc">ยอดที่ผู้ป่วยต้องรับผิดชอบ <b id="owe">–</b> บาท · นับยอดรวมต่อการรับบริการ 1 ครั้ง หรือการนอนโรงพยาบาล 1 ครั้ง ห้ามแยกใบแจ้งหนี้ <span id="erNote"></span></div>
     </fieldset>
 
-    <fieldset>
-      <legend><div class="sec-h"><span class="sec-n">2</span><h2>ตรวจสิทธิและแหล่งทุน<small>ต้องตรวจครบทุกข้อก่อนพิจารณาเงินบำรุง</small></h2></div></legend>
+    <fieldset id="s2">
+      <legend><div class="sec-h"><span class="sec-n">2</span><h2>ตรวจสิทธิและแหล่งทุน 7 แหล่ง<small>ตรวจตามลำดับทุกราย ถ้ายังรอตั้งเบิก ให้ดำเนินการตามสิทธิก่อนพิจารณาเงินบำรุง</small></h2></div></legend>
       <div class="rights" id="rights"></div>
+      <div class="row">
+        <label class="f">สิทธิการรักษา (ตามแบบขออนุเคราะห์ฯ ข้อ 1)<select id="rightsStatus"><option value="">— เลือก —</option><option>ไม่มีสิทธิ</option><option>สิทธิไม่ครอบคลุม</option><option>ใช้สิทธิไม่ได้ (นอกเขต/ผิดขั้นตอน)</option><option>อื่น ๆ</option></select></label>
+        <label class="f">ชื่อสิทธิ/รายละเอียดอื่น ๆ<input type="text" id="rightsName" maxlength="80" placeholder="เช่น บัตรทอง นอกเขต"></label>
+      </div>
     </fieldset>
 
-    <fieldset>
+    <fieldset id="s3">
       <legend><div class="sec-h"><span class="sec-n">3</span><h2>ด้านเศรษฐกิจ<small>ผู้ป่วย ครอบครัว และญาติ</small></h2></div></legend>
       <div class="row">
         <label class="f">จำนวนสมาชิกครัวเรือน (คน)<input type="number" id="members" min="1" step="1"></label>
@@ -265,26 +307,28 @@ table.ut th{color:var(--muted);font-weight:600}
         <label class="f">หนี้สิน (บาท)<input type="number" id="debtAmt" min="0" step="1"></label>
         <label class="f">แหล่งหนี้<select id="debtSrc"><option value="">ไม่มี</option><option>ในระบบ</option><option>นอกระบบ</option><option>ทั้งในและนอกระบบ</option></select></label>
       </div>
-      <div class="calc">รายได้ต่อหัว <b id="pc">–</b> บาท/คน/เดือน · เส้นความยากจน ปี 2567 = 3,078 บาท · <span id="pcFlag"></span></div>
+      <div class="calc">รายได้ต่อหัว <b id="pc">–</b> บาท/คน/เดือน · เส้นความยากจน ปี 2567 = 3,078 บาท · <span id="pcFlag"></span><br><span id="c2537"></span></div>
       <div class="checks">
-        <label class="chk"><input type="checkbox" id="crit2537">เข้าเกณฑ์ระเบียบสำนักนายกฯ 2537 (คนโสด ≤ 2,000 / ครอบครัว ≤ 2,800 บาท/เดือน)</label>
-        <label class="chk"><input type="checkbox" id="noSave">ไม่มีเงินออม ไม่มีทรัพย์สิน/ปัจจัยการผลิตที่ใช้ได้</label>
+        <label class="chk"><input type="checkbox" id="crit2537">เข้าเกณฑ์ระเบียบสำนักนายกฯ 2537 จากหลักฐานอื่น (ระบบตรวจจากรายได้ให้อัตโนมัติ)</label>
+        <label class="chk"><input type="checkbox" id="noSave">ไม่มีเงินออม ไม่มีที่ดิน/ปัจจัยการผลิตที่ใช้ได้</label>
         <label class="chk"><input type="checkbox" id="tempJob">อาชีพชั่วคราว/รายได้ไม่แน่นอน</label>
         <label class="chk"><input type="checkbox" id="noKin">ญาติไม่อยู่ในฐานะช่วยเหลือได้</label>
       </div>
-      <div class="f note">คะแนนรายได้ครอบครัว (แบบประเมินครอบครัว ข้อ 1)</div>
+      <div class="sub-h">คะแนนรายได้ครอบครัว (แบบประเมินครอบครัว ข้อ 1)</div>
       <div class="scale" id="fra"></div>
     </fieldset>
 
-    <fieldset>
-      <legend><div class="sec-h"><span class="sec-n">4</span><h2>องค์ประกอบบุคคลและความเปราะบาง</h2></div></legend>
+    <fieldset id="s4">
+      <legend><div class="sec-h"><span class="sec-n">4</span><h2>องค์ประกอบบุคคล สถานะในครอบครัว และความเปราะบาง</h2></div></legend>
       <div class="checks">
         <label class="chk"><input type="checkbox" id="pDis">พิการหรือป่วยจนประกอบอาชีพไม่ได้</label>
         <label class="chk"><input type="checkbox" id="pChild">เด็กอายุต่ำกว่า 15 ปี หรือกำพร้า อาศัยกับผู้มีรายได้น้อย</label>
         <label class="chk"><input type="checkbox" id="pOld">อายุ 60 ปีขึ้นไป</label>
         <label class="chk"><input type="checkbox" id="pFarm">เกษตรกรไม่มีที่ดินทำกิน/รับจ้างทำไร่นา ไม่มีรายได้อื่น</label>
+        <label class="chk"><input type="checkbox" id="pHead">เป็นหัวหน้าครอบครัว/มีผู้พึ่งพิง</label>
+        <label class="chk"><input type="checkbox" id="pChronic">โรคเรื้อรัง/รักษานาน มีค่าใช้จ่ายต่อเนื่อง</label>
       </div>
-      <div class="f note">กรณีเฉพาะที่ให้พิจารณาอนุเคราะห์ทั้งหมด</div>
+      <div class="sub-h">กรณีเฉพาะที่ให้อนุเคราะห์ทั้งหมด (ไม่ส่งทำค้างชำระ)</div>
       <div class="checks">
         <label class="chk"><input type="checkbox" id="sHome">ไร้บ้าน/ที่อยู่เลื่อนลอย</label>
         <label class="chk"><input type="checkbox" id="sAband">ถูกทอดทิ้ง หรือไม่มีญาติ</label>
@@ -294,38 +338,66 @@ table.ut th{color:var(--muted);font-weight:600}
       <details class="vg"><summary>กลุ่มเปราะบาง 18 กลุ่ม ตามประกาศฯ (ฉบับที่ 2) พ.ศ. 2568 <span id="vgCount"></span></summary><div class="checks" id="vg"></div></details>
     </fieldset>
 
-    <fieldset>
-      <legend><div class="sec-h"><span class="sec-n">5</span><h2>ความรุนแรงปัญหาการเงิน (ICF d870)<small>จากบัญชีปัญหาทางสังคม ช่วง 30 วันที่ผ่านมา</small></h2></div></legend>
+    <fieldset id="s5">
+      <legend><div class="sec-h"><span class="sec-n">5</span><h2>ความรุนแรงปัญหาการเงิน (ICF d870)<small>จากบัญชีปัญหาทางสังคม 17 ข้อ ช่วง 30 วันที่ผ่านมา</small></h2></div></legend>
       <div class="scale" id="d870"></div>
     </fieldset>
 
-    <fieldset>
-      <legend><div class="sec-h"><span class="sec-n">6</span><h2>ความสามารถชำระและเงื่อนไขค้างชำระ<small>เงื่อนไขค้างชำระใช้เมื่อผลอยู่ในแถว "ส่งทำค้างชำระ" ต้องครบทุกข้อ</small></h2></div></legend>
+    <fieldset id="s6">
+      <legend><div class="sec-h"><span class="sec-n">6</span><h2>ความสามารถชำระและเงื่อนไขค้างชำระ<small>ใช้เมื่อผลอยู่ในแถว "ส่งทำค้างชำระ" ต้องครบทั้ง 5 ข้อ (ข้อ 1–2 ระบบตรวจจากส่วนที่ 2 และผลประเมิน)</small></h2></div></legend>
       <div class="checks">
         <label class="chk"><input type="checkbox" id="cFund">มีรายได้สม่ำเสมอ หรือรอเงินจากแหล่งอื่น (ประกัน/ค่าสินไหม)</label>
-        <label class="chk"><input type="checkbox" id="cConsent">ผู้ป่วย/ผู้รับผิดชอบมีสติสัมปชัญญะ เข้าใจ และยินยอมทำหนังสือรับสภาพหนี้</label>
+        <label class="chk"><input type="checkbox" id="cConsent">ผู้ป่วยหรือผู้รับผิดชอบมีสติสัมปชัญญะ เข้าใจ และยินยอมทำหนังสือรับสภาพหนี้ด้วยความสมัครใจ</label>
         <label class="chk"><input type="checkbox" id="cContact">มีที่อยู่และช่องทางติดต่อที่ตรวจสอบได้</label>
       </div>
       <div class="row">
         <label class="f">ผู้ป่วยชำระได้ทันที (บาท)<input type="number" id="payNow" min="0" step="1"></label>
         <label class="f">ยอดผ่อนต่องวด (บาท/เดือน)<input type="number" id="inst" min="0" step="1"></label>
         <label class="f">จำนวนงวด<input type="number" id="nInst" min="1" step="1"></label>
+        <label class="f">เริ่มชำระ<input type="date" id="instStart"></label>
       </div>
       <div class="calc" id="instCalc"></div>
     </fieldset>
 
-    <fieldset>
-      <legend><div class="sec-h"><span class="sec-n">7</span><h2>ความเห็นนักสังคมสงเคราะห์และเอกสาร<small>ตรงกับแบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์ ข้อ 3–4</small></h2></div></legend>
-      <label class="f">ความเห็นนักสังคมสงเคราะห์ (สรุปสั้น ไม่ระบุชื่อผู้ป่วย)<textarea class="in" id="swNote" maxlength="1500"></textarea></label>
+    <fieldset id="s7">
+      <legend><div class="sec-h"><span class="sec-n">7</span><h2>ความเห็นนักสังคมสงเคราะห์และเอกสาร<small>เช็กลิสต์เอกสารประกอบการพิจารณา ตามแนวทางข้อ 8.1</small></h2></div></legend>
+      <label class="f">สรุปปัญหาทางสังคม/ความเห็นนักสังคมสงเคราะห์ (ไม่ระบุชื่อผู้ป่วย)<textarea class="in" id="swNote" maxlength="1500"></textarea></label>
       <div class="row">
-        <label class="f">ยอดที่เสนอขอ (บาท) <input type="number" id="reqAmt" min="0" step="1" placeholder="ตามที่คำนวณ"></label>
+        <label class="f">ยอดที่เสนอขอ (บาท)<input type="number" id="reqAmt" min="0" step="1" placeholder="ตามที่คำนวณ"></label>
       </div>
-      <div class="checks">
-        <label class="chk"><input type="checkbox" id="aRec">จัดทำแบบบันทึกงานสังคมสงเคราะห์แล้ว</label>
-        <label class="chk"><input type="checkbox" id="aReq">จัดทำแบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์แล้ว</label>
-        <label class="chk"><input type="checkbox" id="aDoc">มีความเห็นแพทย์ผู้รักษา</label>
-        <label class="chk"><input type="checkbox" id="aDocs">เอกสารประกอบครบตามเช็กลิสต์</label>
+      <div class="checks" id="docList"></div>
+    </fieldset>
+
+    <fieldset id="s8">
+      <legend><div class="sec-h"><span class="sec-n">8</span><h2>ข้อมูลแบบบันทึกงานสังคมสงเคราะห์<small>บันทึกทุกรายที่ส่งปรึกษา ข้อมูลส่วนนี้เติมลงแบบบันทึกฯ ที่พิมพ์ ไม่มีผลต่อผลการพิจารณา</small></h2></div></legend>
+      <div class="sub-h">1. ปัญหาและความต้องการ (ประเด็นจากการคัดกรอง)</div>
+      <div class="inl" id="probs"></div>
+      <div class="sub-h">3. แหล่งทรัพยากรทางสังคม</div>
+      <label class="chk"><input type="checkbox" id="famTree">แนบผังครอบครัว (ข้อ 2)</label>
+      <table class="restbl"><thead><tr><th>แหล่งทรัพยากร</th><th class="c">มีอยู่</th><th class="c">ประสาน</th><th>หน่วยงาน/บุคคล และผล</th></tr></thead><tbody id="resRows"></tbody></table>
+      <div class="sub-h">4. การประเมินปัญหาทางสังคม</div>
+      <label class="f">ปัญหาตามบัญชีปัญหาทางสังคม (รหัส/ระดับ 0–4)<input type="text" id="sdma" maxlength="200" placeholder="เช่น d870 ระดับ 3, d760 ระดับ 2"></label>
+      <div class="sub-h">5. การวางแผนการบำบัดและช่วยเหลือ</div>
+      <div class="row">
+        <label class="f">แผนระยะสั้น<textarea class="in sm" id="planS" maxlength="400"></textarea></label>
+        <label class="f">แผนระยะยาว<textarea class="in sm" id="planL" maxlength="400"></textarea></label>
       </div>
+      <div class="sub-h">6. การบำบัดทางสังคม</div>
+      <div class="inl" id="txs"></div>
+      <label class="f">ส่งต่อหน่วยงาน ระบุ<input type="text" id="referTo" maxlength="120"></label>
+      <details class="more"><summary>7. ประเมินผลการบำบัดและการติดตาม (เติมภายหลังได้)</summary>
+        <div style="display:grid;gap:12px;margin-top:10px">
+          <div class="inl" id="evs"></div>
+          <label class="f">ผลต่อผู้ป่วยและครอบครัว<input type="text" id="effect" maxlength="200"></label>
+          <div class="inl" id="closes"></div>
+          <label class="f">ส่งต่อหน่วยงานอื่น ระบุ<input type="text" id="closeTo" maxlength="120"></label>
+          <div class="row">
+            <label class="f">วันที่ติดตาม<input type="date" id="fuDate"></label>
+            <label class="f">ผลการติดตาม<input type="text" id="fuRes" maxlength="200"></label>
+          </div>
+          <div class="inl" id="fuHows"></div>
+        </div>
+      </details>
     </fieldset>
   </form>
 
@@ -342,11 +414,18 @@ table.ut th{color:var(--muted);font-weight:600}
           <button type="button" class="ghost" id="copyBtn">คัดลอกสรุปผล</button>
         </div>
         <div class="msg" id="submitMsg"></div>
-        <div class="fine" id="copyMsg">สรุปผลเป็นข้อความ วางลงแบบบันทึกงานสังคมสงเคราะห์หรือแบบขออนุเคราะห์ฯ ได้</div>
+        <div><h3>พิมพ์เอกสาร</h3>
+          <div class="docs" style="margin-top:6px">
+            <div class="docrow"><span>แบบบันทึกงานสังคมสงเคราะห์</span><span class="btns"><button type="button" class="ghost sm" id="pRec">พิมพ์</button><button type="button" class="ghost sm" id="wRec">Word</button></span></div>
+            <div class="docrow" id="reqRow"><span>แบบขออนุเคราะห์ฯ (ร่าง)</span><span class="btns"><button type="button" class="ghost sm" id="pReqD">พิมพ์</button><button type="button" class="ghost sm" id="wReqD">Word</button></span></div>
+          </div>
+          <div class="msg fine" id="docMsg">แบบขออนุเคราะห์ฯ ฉบับที่มีผลอนุมัติ พิมพ์จากแท็บรายการเสนออนุมัติ</div>
+        </div>
+        <div class="fine" id="copyMsg"></div>
         <textarea id="summary" aria-hidden="true" tabindex="-1"></textarea>
       </div>
     </div>
-    <p class="fine">วงเงินอำนาจอนุมัติ 4 ระดับเป็นข้อเสนอของกลุ่มงานสังคมสงเคราะห์ที่รอผู้บริหารพิจารณา ใช้ตามคำสั่งมอบอำนาจที่ผู้อำนวยการลงนาม เมื่อคะแนนสองชุดไม่ตรงกัน เครื่องมือยึดด้านที่เปราะบางกว่า กรณีฉุกเฉิน ให้รักษาก่อนแล้วประเมินภายหลัง</p>
+    <p class="fine">วงเงินอำนาจอนุมัติ 4 ระดับเป็นข้อเสนอของกลุ่มงานสังคมสงเคราะห์ ใช้ตามคำสั่งมอบอำนาจที่ผู้อำนวยการลงนาม เมื่อคะแนนสองชุดไม่ตรงกัน ระบบยึดด้านที่เปราะบางกว่า กรณีฉุกเฉินและผู้ประสบอุบัติเหตุ ให้รักษาก่อนแล้วประเมินภายหลัง</p>
   </aside>
   </div>
   </section>
@@ -373,12 +452,30 @@ table.ut th{color:var(--muted);font-weight:600}
     </div>
   </section>
 
+  <!-- ===== VIEW M: monthly report ===== -->
+  <section id="view-m" role="tabpanel" aria-labelledby="tab-m" hidden style="display:grid;gap:16px">
+    <div class="notice warn" id="offM" hidden>เข้าสู่ระบบด้านบนเพื่อดูรายงาน</div>
+    <div id="onM" style="display:grid;gap:16px">
+      <div class="panel">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:end;justify-content:space-between">
+          <div><h2>รายงานสรุปการอนุเคราะห์และค้างชำระ</h2><p class="fine" style="margin:4px 0 0">รายงานต่อผู้อำนวยการทุกเดือน ตามแนวทางข้อ 4.1 นับจากวันที่บันทึกผลอนุมัติ</p></div>
+          <div class="btns" style="align-items:end"><label class="f">เดือน<input type="month" id="mMonth"></label><button type="button" class="ghost" id="mPrint">พิมพ์รายงาน</button></div>
+        </div>
+        <div id="mBody"></div>
+      </div>
+      <div class="panel">
+        <div><h2>ลูกหนี้ค้างชำระที่ต้องทบทวนก่อนครบอายุความ 2 ปี</h2><p class="fine" style="margin:4px 0 0">นับจากวันอนุมัติ (ป.พ.พ. มาตรา 193/34(11)) ถ้ามีการชำระบางส่วนหรือรับสภาพหนี้ภายหลัง อายุความเริ่มนับใหม่ ให้ตรวจกับกลุ่มงานการเงิน แถวสีแดงเหลือไม่ถึง 6 เดือน</p></div>
+        <div id="mDebt"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== VIEW R: users & roles ===== -->
   <section id="view-r" role="tabpanel" aria-labelledby="tab-r" hidden style="display:grid;gap:16px">
     <div class="notice warn" id="offR" hidden>เข้าสู่ระบบด้านบนเพื่อดูรายชื่อผู้มีอำนาจอนุมัติ</div>
     <div id="onR" style="display:grid;gap:16px">
     <div class="panel">
-      <div><h2>ผู้มีอำนาจอนุมัติตามวงเงิน</h2><p class="fine" style="margin:4px 0 0">ผู้มีอำนาจระดับสูงพิจารณารายที่อยู่ในวงเงินระดับต่ำกว่าได้ ระดับนักสังคมสงเคราะห์อนุมัติรายที่ตนประเมินได้ ระดับอื่นผู้ประเมินอนุมัติรายของตนเองไม่ได้ ต้องเสนอระดับถัดไป ระบบตรวจกติกานี้ที่ฝั่ง Apps Script ทุกครั้งที่บันทึก</p></div>
+      <div><h2>ผู้มีอำนาจอนุมัติตามวงเงิน</h2><p class="fine" style="margin:4px 0 0">ผู้มีอำนาจระดับสูงพิจารณารายที่อยู่ในวงเงินระดับต่ำกว่าได้ นักสังคมสงเคราะห์อนุมัติรายที่ตนประเมินได้เฉพาะวงเงินระดับแรก รายที่เกินระดับแรก หากผู้ประเมินเป็นผู้มีอำนาจในระดับนั้นด้วย ให้เสนอระดับถัดไป ระบบตรวจกติกานี้ที่ฝั่ง Apps Script ทุกครั้งที่บันทึก</p></div>
       <div id="tiers"></div>
     </div>
     <div class="panel" id="adminBox" hidden>
@@ -391,7 +488,7 @@ table.ut th{color:var(--muted);font-weight:600}
           <label class="f">ชื่อที่แสดง<input type="text" id="uf-name" autocomplete="off"></label>
           <label class="f"><span id="uf-pinlbl">PIN เริ่มต้น 6 หลัก (ผู้ใช้ต้องเปลี่ยนเมื่อเข้าครั้งแรก)</span><input type="password" inputmode="numeric" maxlength="6" id="uf-pin" autocomplete="new-password"></label>
         </div>
-        <div class="f note">ระดับอำนาจอนุมัติ (เลือกได้มากกว่า 1)</div>
+        <div class="note">ระดับอำนาจอนุมัติ (เลือกได้มากกว่า 1)</div>
         <div class="checks">
           <label class="chk"><input type="checkbox" id="uf-t0">นักสังคมสงเคราะห์ (≤ 3,000)</label>
           <label class="chk"><input type="checkbox" id="uf-t1">หัวหน้านักสังคมสงเคราะห์ (≤ 20,000)</label>
@@ -410,7 +507,7 @@ table.ut th{color:var(--muted);font-weight:600}
   </section>
 </div>
 <div id="printArea" class="rf" aria-hidden="true"></div>
-<div class="bar" id="bar"><span>ผล: <span class="res" id="barRes">–</span></span><a href="#band" style="color:var(--accent);font-weight:600">ดูรายละเอียด</a></div>
+<div class="bar" id="bar"><span>ผล: <span class="res" id="barRes">–</span></span><a href="#band" style="font-weight:600">ดูรายละเอียด</a></div>
 
 <script src="config.js"></script>
 <script>
@@ -420,38 +517,61 @@ const RSTATE=[["","— เลือก —"],["na","ไม่มี/ใช้ไ
 const FRA=[["0","ไม่มีรายได้ทั้งจากตนเองหรือผู้อื่น"],["1","ไม่มีรายได้ของตนเอง มีหนี้ ไม่มีเงินออม"],["2","รายได้น้อยกว่ารายจ่าย มีหนี้ ไม่มีเงินออม"],["3","รายได้เท่ากับรายจ่าย ไม่มีเงินออม ไม่มีหนี้"],["4","รายได้สูงกว่ารายจ่าย แต่ไม่มีเงินออม"],["5","รายได้สูงกว่ารายจ่าย มีเงินออม ไม่มีหนี้"]];
 const D870=[["0","ไม่มีปัญหา (0–4%)","ไม่มีความยากลำบากด้านการเงิน"],["1","เล็กน้อย (5–24%)","เกิดไม่บ่อย ทนได้"],["2","ปานกลาง (25–49%)","เกิดเป็นครั้งคราว รบกวนชีวิตประจำวัน"],["3","รุนแรง (50–95%)","เกิดบ่อย รบกวนชีวิตประจำวันบางส่วน"],["4","รุนแรงที่สุด (96–100%)","เกิดทุกวัน รบกวนชีวิตโดยสิ้นเชิง"]];
 const VG=["ผู้ป่วยเอดส์/ผู้ติดเชื้อเอชไอวี","แม่วัยรุ่น/หญิงตั้งครรภ์ไม่พึงประสงค์","แรงงานข้ามชาติ (ลาว เมียนมา กัมพูชา)","ผู้ป่วยต่างชาติ","ผู้ป่วยคนพิการ","ผู้ป่วยถูกกระทำทารุณกรรม","ผู้มีปัญหาการติดยาและสารเสพติด","ผู้ป่วยไร้บ้าน","ผู้ต้องขัง/สถานพินิจ/สถานกักกัน","ผู้ป่วยสูงอายุ","ผู้ป่วยวัณโรค","ระยะประคับประคองและระยะท้าย","โควิด-19/โรคอุบัติใหม่","ผู้ป่วยจิตเวช","ผู้ป่วยโรคเรื้อรัง","ผู้ป่วยไร้สถานะทางกฎหมาย","ผู้ป่วยถูกทอดทิ้ง","ผู้ป่วยโรคมะเร็ง"];
+const DOCS=["ใบส่งปรึกษา/แบบคัดกรองความเสี่ยงปัญหาทางสังคม","แบบบันทึก สค.1 หรือ S.D.M.A. พร้อมผังครอบครัว","แบบประเมินครอบครัวและคะแนนบัญชีปัญหาทางสังคม (d870)","สำเนาบัตรประจำตัว หรือบันทึกข้อเท็จจริงกรณีไม่มีเอกสาร","หลักฐานรายได้หรือหนังสือรับรองฐานะจากผู้นำชุมชน (ถ้ามี)","ใบแจ้งค่าใช้จ่ายจากการเงิน และใบเสร็จ/ใบค้างชำระเดิม","แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์ พร้อมความเห็นแพทย์","หนังสือรับสภาพหนี้และแผนการชำระ (กรณีค้างชำระ)"];
+const DOC_OPT=[4];const DOC_DEBT=7;
+const PROBS=["การใช้สิทธิการรักษา","ที่อยู่อาศัย","ญาติ/ผู้ดูแล","ความสัมพันธ์ในครอบครัว","เศรษฐกิจ"];
+const RES=["ครอบครัว ญาติ ผู้ดูแล","ชุมชน (อสม. ผู้นำชุมชน ศาสนสถาน)","บริการสุขภาพ (รพ.สต. เยี่ยมบ้าน ฟื้นฟู)","สิทธิรักษา/หลักประกัน (บัตรคนพิการ พ.ร.บ.รถ)","สวัสดิการรัฐ (พมจ. อปท. เบี้ยยังชีพ)","อาชีพ การศึกษา ที่อยู่อาศัย","ภาคเอกชน (มูลนิธิ สมาคม กองทุนพระราชทาน)","คุ้มครองและกฎหมาย (OSCC ตำรวจ ยุติธรรม)"];
+const TX=["ให้การปรึกษา","เสริมพลังอำนาจ","ปรึกษาครอบครัว/ครอบครัวบำบัด","จัดการทรัพยากรและพิทักษ์สิทธิ์","เยี่ยมบ้าน","เตรียมความพร้อมก่อนจำหน่าย","ส่งต่อหน่วยงาน"];
+const EV=["ปัญหาได้รับการแก้ไข","ปัญหาบรรเทาลง","ปัญหาคงเดิม","ปัญหาซับซ้อนขึ้น"];
+const CLOSE=["ยุติบริการ","ส่งต่อหน่วยงานอื่น","ติดตามต่อ (เฉพาะรายที่จำเป็น)"];
+const FUHOW=["โทรศัพท์","นัดพบ","เยี่ยมบ้าน"];
 const TIERS=[[3000,'นักสังคมสงเคราะห์','ไม่เกิน 3,000 บาท'],[20000,'หัวหน้านักสังคมสงเคราะห์','3,001–20,000 บาท'],[50000,'หัวหน้ากลุ่มภารกิจด้านบริการทุติยภูมิและตติยภูมิ/รองผู้อำนวยการฝ่ายการแพทย์','20,001–50,000 บาท'],[Infinity,'ผู้อำนวยการ','เกิน 50,000 บาท']];
 const TSHORT=['นักสังคมสงเคราะห์','หัวหน้านักสังคมสงเคราะห์','หัวหน้ากลุ่มภารกิจฯ/รอง ผอ.ฝ่ายการแพทย์','ผู้อำนวยการ'];
 const tierOf=a=>TIERS.findIndex(t=>a<=t[0]);
-const approver=a=>TIERS[tierOf(a)];
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-$("rights").innerHTML=RIGHTS.map((r,i)=>`<div class="r"><span>${esc(r)}</span><select id="rt${i}" aria-label="${esc(r)}">${RSTATE.map(([v,t])=>`<option value="${v}">${t}</option>`).join("")}</select></div>`).join("");
+const scrollToEl=el=>{if(!el)return;const y=el.getBoundingClientRect().top+window.scrollY-70;window.scrollTo({top:Math.max(0,y),behavior:"smooth"})};
+$("rights").innerHTML=RIGHTS.map((r,i)=>`<div class="r"><span class="i">${i+1}</span><span>${esc(r)}</span><select id="rt${i}" aria-label="${esc(r)}">${RSTATE.map(([v,t])=>`<option value="${v}">${t}</option>`).join("")}</select></div>`).join("");
 $("fra").innerHTML=FRA.map(([v,t])=>`<label class="opt"><input type="radio" name="fra" id="fra${v}" value="${v}"><span><span class="k">${v}</span> · <span>${t}</span></span></label>`).join("");
 $("d870").innerHTML=D870.map(([v,k,d])=>`<label class="opt"><input type="radio" name="d870" id="d${v}" value="${v}"><span><span class="k">${v} ${k}</span><br><span class="d">${d}</span></span></label>`).join("");
 $("vg").innerHTML=VG.map((g,i)=>`<label class="chk"><input type="checkbox" id="vg${i}">${g}</label>`).join("");
+$("docList").innerHTML=DOCS.map((g,i)=>`<label class="chk"><input type="checkbox" id="doc${i}">${g}</label>`).join("");
+const pills=(arr,pre,type,name)=>arr.map((t,i)=>`<label class="opt"><input type="${type}" id="${pre}${i}"${name?` name="${name}" value="${i}"`:""}><span>${t}</span></label>`).join("");
+$("probs").innerHTML=pills(PROBS,"pr","checkbox");
+$("txs").innerHTML=pills(TX,"tx","checkbox");
+$("evs").innerHTML=pills(EV,"ev","radio","ev");
+$("closes").innerHTML=pills(CLOSE,"cl","radio","close");
+$("fuHows").innerHTML=pills(FUHOW,"fh","radio","fuHow");
+$("resRows").innerHTML=RES.map((r,i)=>`<tr><td>${esc(r)}</td><td class="c" data-l="มีอยู่"><input type="checkbox" id="rsH${i}" aria-label="มีอยู่: ${esc(r)}"></td><td class="c" data-l="ประสาน"><input type="checkbox" id="rsC${i}" aria-label="ประสาน: ${esc(r)}"></td><td><input type="text" id="rsN${i}" maxlength="120" aria-label="หน่วยงาน/บุคคล และผล: ${esc(r)}"></td></tr>`).join("");
 
 const num=id=>{const v=parseFloat($(id).value);return isNaN(v)?null:v};
 const fmt=n=>n==null||isNaN(n)?"–":Math.round(n).toLocaleString("th-TH");
-const radio=n=>{const e=document.querySelector(`input[name=${n}]:checked`);return e?+e.value:null};
+const radio=n=>{const e=document.querySelector(`#f input[name=${n}]:checked`);return e?+e.value:null};
 const ck=id=>$(id).checked;
 const LV=["ชำระตามปกติ","ส่งทำค้างชำระ","อนุเคราะห์บางส่วน","อนุเคราะห์ทั้งหมด"];
 const CLS=["norm","debt","part","full"];
 const thDate=iso=>{if(!iso)return"-";const d=new Date(iso);return isNaN(d)?"-":d.toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})};
 const thDT=iso=>{if(!iso)return"-";const d=new Date(iso);return isNaN(d)?"-":d.toLocaleString("th-TH",{day:"numeric",month:"short",year:"2-digit",hour:"2-digit",minute:"2-digit"})};
 const fyOf=iso=>{const d=iso?new Date(iso):new Date();return d.getFullYear()+543+(d.getMonth()>=9?1:0)};
+const todayISO=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+const sevOf=d=>d==null?null:d>=3?"แดง":d===2?"เหลือง":"เขียว";
 
-let R=null; // latest compute result
+let R=null;
 let exampleOn=true, submittedSig=null;
 
 function compute(){
-  const cost=num("cost")||0,cov=num("covered")||0,oth=num("other")||0;
+  const cost=num("cost")||0,cov=num("covered")||0,trn=num("transport")||0,eqp=num("equip")||0,oth=trn+eqp;
   const owe=Math.max(0,cost-cov)+oth;
   $("owe").textContent=fmt(owe);
+  $("erNote").textContent=/ER/.test($("ptype").value)?"· ฉุกเฉิน: รักษาก่อน ประเมินภายหลัง":"";
   const mem=num("members"),inc=num("income");
   const pc=(mem&&inc!=null)?inc/mem:null;
   $("pc").textContent=fmt(pc);
-  $("pcFlag").innerHTML=pc==null?"":(pc<PL?`<b style="color:var(--warn)">ต่ำกว่าเส้นความยากจน</b>`:`สูงกว่าเส้นความยากจน`);
+  $("pcFlag").innerHTML=pc==null?"":(pc<PL?`<b style="color:var(--warn)">ต่ำกว่าเส้นความยากจน</b>`:`ไม่ต่ำกว่าเส้นความยากจน`);
+  const a2537=(mem&&inc!=null)?(mem===1?inc<=2000:inc<=2800):null;
+  $("c2537").innerHTML=a2537==null?"เกณฑ์ระเบียบสำนักนายกฯ 2537: คนโสด ≤ 2,000 / ครอบครัว ≤ 2,800 บาท/เดือน":
+    `เกณฑ์ระเบียบสำนักนายกฯ 2537 (${mem===1?"คนโสด ≤ 2,000":"ครอบครัว ≤ 2,800"} บาท/เดือน): ${a2537?'<b style="color:var(--warn)">เข้าเกณฑ์</b>':"ไม่เข้าเกณฑ์"}`;
+  const crit2537=!!a2537||ck("crit2537");
   const vgN=VG.filter((_,i)=>ck("vg"+i)).length;
   $("vgCount").textContent=vgN?`· เลือก ${vgN} กลุ่ม`:"";
   const inst=num("inst"),nI=num("nInst"),payNow=num("payNow")||0;
@@ -467,8 +587,8 @@ function compute(){
   const special=[["sHome","ไร้บ้าน"],["sAband","ถูกทอดทิ้ง/ไม่มีญาติ"],["sStateless","ไร้สถานะ ไม่มีกองทุนรองรับ"],["sViol","ผู้ถูกกระทำรุนแรง"]].filter(([id])=>ck(id)).map(x=>x[1]);
 
   if(owe<=0&&cost>0){status="none";}
-  if(pend.length){status="stop";why.push(`สิทธิ/แหล่งทุนยังไม่ได้ตรวจหรือรอตั้งเบิก ${pend.length} รายการ`);next.push("ดำเนินการตามสิทธิให้ครบก่อน แล้วปรับยอดในข้อ 1");}
-  if(fra==null||d==null){if(status!=="stop")status="incomplete";if(fra==null)why.push("ยังไม่ได้เลือกคะแนนรายได้ครอบครัว (ข้อ 3)");if(d==null)why.push("ยังไม่ได้เลือกระดับปัญหาการเงิน d870 (ข้อ 5)");}
+  if(pend.length){status="stop";why.push(`สิทธิ/แหล่งทุนยังไม่ได้ตรวจหรือรอตั้งเบิก ${pend.length} แหล่ง (ข้อ ${pend.map(i=>i+1).join(", ")})`);next.push("ดำเนินการตามสิทธิให้ครบก่อน แล้วปรับยอดในส่วนที่ 1");}
+  if(fra==null||d==null){if(status!=="stop")status="incomplete";if(fra==null)why.push("ยังไม่ได้เลือกคะแนนรายได้ครอบครัว (ส่วนที่ 3)");if(d==null)why.push("ยังไม่ได้เลือกระดับปัญหาการเงิน d870 (ส่วนที่ 5)");}
 
   if(fra!=null&&d!=null){
     const lvD=d>=3?3:d===2?2:d===1?1:0;
@@ -477,17 +597,17 @@ function compute(){
     why.push(`d870 ระดับ ${d} → ${LV[lvD]}`);
     why.push(`คะแนนรายได้ครอบครัว ${fra} → ${LV[lvF]}`);
     if(lvD!==lvF)why.push("คะแนนสองชุดไม่ตรงกัน ยึดด้านที่เปราะบางกว่า");
-    if(ck("crit2537")){level=3;why.push("เข้าเกณฑ์ระเบียบสำนักนายกฯ 2537");}
+    if(crit2537){level=3;why.push(a2537?"รายได้ครัวเรือนเข้าเกณฑ์ระเบียบสำนักนายกฯ 2537":"เข้าเกณฑ์ระเบียบสำนักนายกฯ 2537 (หลักฐานอื่น)");}
     if(pc!=null&&pc<PL){if(level<3)level=3;why.push(`รายได้ต่อหัว ${fmt(pc)} บาท ต่ำกว่าเส้นความยากจน`);}
     if(special.length){level=3;why.push("กรณีเฉพาะ: "+special.join(", "));}
-    const pers=[["pDis","พิการ/ทำงานไม่ได้"],["pChild","เด็ก <15 ปี/กำพร้า"],["pOld","อายุ ≥60 ปี"],["pFarm","เกษตรกรไม่มีที่ดิน/รับจ้าง"]].filter(([id])=>ck(id)).map(x=>x[1]);
+    const pers=[["pDis","พิการ/ทำงานไม่ได้"],["pChild","เด็ก <15 ปี/กำพร้า"],["pOld","อายุ ≥60 ปี"],["pFarm","เกษตรกรไม่มีที่ดิน/รับจ้าง"],["pHead","หัวหน้าครอบครัว/มีผู้พึ่งพิง"],["pChronic","โรคเรื้อรัง/รักษานาน"]].filter(([id])=>ck(id)).map(x=>x[1]);
     if(pers.length)why.push("องค์ประกอบบุคคล: "+pers.join(", "));
     if(vgN)why.push(`อยู่ในกลุ่มเปราะบาง ${vgN} กลุ่ม`);
     if(level===1){
       const fails=[];
       if(!ck("cFund"))fails.push("ไม่มีรายได้สม่ำเสมอ/แหล่งเงินที่คาดว่าจะได้");
-      if(!ck("cConsent"))fails.push("ยังไม่ยืนยันการยินยอมโดยมีสติสัมปชัญญะ");
-      if(!ck("cContact"))fails.push("ยังไม่มีช่องทางติดต่อที่ตรวจสอบได้");
+      if(!ck("cConsent"))fails.push("ยังไม่ยืนยันการยินยอมโดยมีสติสัมปชัญญะ (ถ้าให้ความยินยอมไม่ได้และไม่มีผู้แทนโดยชอบธรรม ห้ามส่งทำค้างชำระ)");
+      if(!ck("cContact"))fails.push("ยังไม่มีที่อยู่/ช่องทางติดต่อที่ตรวจสอบได้");
       if(inst==null)fails.push("ยังไม่ได้กำหนดยอดผ่อนต่องวด");
       else if(resid!=null&&resid<PL)fails.push("ยอดผ่อนทำให้รายได้คงเหลือต่อหัวต่ำกว่าเส้นความยากจน");
       if(fails.length){debtFail=true;sub="เงื่อนไขค้างชำระยังไม่ครบ";fails.forEach(f=>why.push("✗ "+f));next.push("แก้เงื่อนไขที่ขาด หรือประเมินซ้ำเพื่อพิจารณาอนุเคราะห์บางส่วน");}
@@ -497,14 +617,14 @@ function compute(){
 
   const calcAmt=level===3?owe:Math.max(0,owe-payNow);
   const reqOverride=num("reqAmt");
-  const amount=status==="ok"&&level>=1?(reqOverride!=null?reqOverride:calcAmt):0;
+  const amount=status==="ok"&&level>=1?Math.min(owe,reqOverride!=null?reqOverride:calcAmt):0;
   const tier=amount>0||level>=1?tierOf(amount):-1;
 
   let m=`<span>ยอดที่ผู้ป่วยต้องรับผิดชอบ</span><span>${fmt(owe)}</span>`;
   if(status==="ok"&&level===3)m+=`<span>เสนออนุเคราะห์</span><span>${fmt(amount)}</span>`;
-  if(status==="ok"&&level===2){m+=`<span>ผู้ป่วยชำระได้</span><span>${fmt(payNow)}</span><span>เสนออนุเคราะห์</span><span>${fmt(amount)}</span>`;if(!payNow)next.push("ระบุยอดที่ผู้ป่วยชำระได้ในข้อ 6");}
-  if(status==="ok"&&level===1){m+=`<span>ชำระทันที</span><span>${fmt(payNow)}</span><span>ตั้งค้างชำระ</span><span>${fmt(amount)}</span>`;if(inst)m+=`<span>ผ่อน</span><span>${fmt(inst)} × ${nI||"?"} งวด</span>`;}
-  if(status==="ok"&&level>=1&&reqOverride!=null&&reqOverride!==calcAmt)m+=`<span class="fine">ปรับยอดจากที่คำนวณ ${fmt(calcAmt)}</span><span></span>`;
+  if(status==="ok"&&level===2){m+=`<span>ผู้ป่วยชำระได้</span><span>${fmt(payNow)}</span><span>เสนออนุเคราะห์</span><span>${fmt(amount)}</span>`;if(!payNow)next.push("ระบุยอดที่ผู้ป่วยชำระได้ในส่วนที่ 6");}
+  if(status==="ok"&&level===1){m+=`<span>ชำระทันที</span><span>${fmt(payNow)}</span><span>ตั้งค้างชำระ</span><span>${fmt(amount)}</span>`;if(inst)m+=`<span>ผ่อน</span><span>${fmt(inst)} × ${nI||"?"} งวด</span>`;if(!$("instStart").value)next.push("ระบุวันเริ่มชำระในส่วนที่ 6");}
+  if(status==="ok"&&level>=1&&reqOverride!=null&&reqOverride!==calcAmt)m+=`<span class="fine">${reqOverride>owe?"ยอดที่ขอเกินยอดที่ผู้ป่วยรับผิดชอบ ปรับเป็น "+fmt(owe):"ปรับยอดจากที่คำนวณ "+fmt(calcAmt)}</span><span></span>`;
 
   let resTxt,cls;
   if(status==="stop"){resTxt="ดำเนินการตามสิทธิก่อน";cls="stop";sub=sub||"ยังพิจารณาอนุเคราะห์ไม่ได้";}
@@ -512,6 +632,7 @@ function compute(){
   else if(status==="incomplete"){resTxt="ข้อมูลยังไม่ครบ";cls="stop";}
   else{resTxt=LV[level];cls=CLS[level];if(!sub)sub=level===3?"ไม่เรียกเก็บส่วนที่ผู้ป่วยต้องจ่าย":level===2?"ลดหย่อน ผู้ป่วยชำระตามความสามารถ":level===1?"ทำหนังสือรับสภาพหนี้และแผนผ่อนชำระ":"ให้ข้อมูลสิทธิและช่องทางชำระ";}
 
+  const docMiss=DOCS.map((_,i)=>i).filter(i=>!DOC_OPT.includes(i)&&(i!==DOC_DEBT||level===1)&&!ck("doc"+i));
   if(status==="ok"){
     if(level>=1){
       const ap=TIERS[tier];
@@ -519,70 +640,95 @@ function compute(){
       next.push("จัดทำแบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์ แนบแบบบันทึกงานสังคมสงเคราะห์ พร้อมความเห็นแพทย์ผู้รักษา");
       next.push(`เสนอ${ap[1]}อนุมัติ (ยอด ${fmt(amount)} บาท อยู่ในวงเงิน${ap[2]})${tier>=1?" ผู้ประเมินที่มีอำนาจระดับเดียวกันให้เสนอระดับถัดไป":""}`);
       if(level===1)next.push("ส่งนิติกรทำหนังสือรับสภาพหนี้/สัญญาค้างชำระ แล้วแจ้งการเงินตั้งลูกหนี้");
-      if(level>=2)next.push("เมื่ออนุมัติแล้ว แจ้งการเงินบันทึกการอนุเคราะห์");
+      if(level>=2)next.push("เมื่ออนุมัติแล้ว แจ้งการเงินบันทึกการอนุเคราะห์ก่อนผู้ป่วยกลับบ้าน");
+      if(docMiss.length)next.push(`เอกสารประกอบยังไม่ครบ ${docMiss.length} รายการ (ส่วนที่ 7)`);
     } else next.push("บันทึกในแบบบันทึกงานสังคมสงเคราะห์ ไม่ต้องใช้แบบขออนุเคราะห์ฯ");
-    next.push("บันทึกในโปรแกรมสังคมสงเคราะห์และแนบเอกสารตามเช็กลิสต์");
+    next.push("บันทึกในโปรแกรมสังคมสงเคราะห์และทะเบียนการอนุเคราะห์ของกลุ่มงาน");
   }
   $("money").innerHTML=m;
   $("band").className="band "+cls;$("res").textContent=resTxt;$("resSub").textContent=sub;$("barRes").textContent=resTxt;
   $("why").innerHTML=why.map(w=>`<li>${esc(w)}</li>`).join("")||"<li>–</li>";
   $("next").innerHTML=next.map(w=>`<li>${esc(w)}</li>`).join("")||"<li>–</li>";
 
-  // evaluation-first, follow-up only when needed (record form section 7)
   const fuWhy=[];
-  if(d!=null&&d>=3)fuWhy.push("ปัญหาการเงินระดับรุนแรง");
+  if(d!=null&&d>=3)fuWhy.push("ปัญหาการเงินระดับรุนแรง (แดง)");
   if(status==="ok"&&level===1)fuWhy.push("ติดตามการผ่อนชำระตามสัญญา");
   if(special.length)fuWhy.push("เป็นกรณีเฉพาะ ("+special.join(", ")+")");
   if(ck("pChild"))fuWhy.push("มีเด็กอายุต่ำกว่า 15 ปี/กำพร้า");
   let fu;
   if(d==null)fu="<span class='fine'>เลือกระดับ d870 ก่อน</span>";
-  else if(fuWhy.length)fu=`<span class="st returned">ติดตามต่อ</span> ${esc(fuWhy.join(" · "))}<div class="fine" style="margin-top:4px">กำหนดวันติดตามในแบบบันทึกฯ ข้อ 7</div>`;
-  else fu=`<span class="st approved">ประเมินผลแล้วยุติบริการได้</span><div class="fine" style="margin-top:4px">ไม่ต้องติดตาม เว้นแต่มีปัญหาใหม่ ปรับได้ตามดุลยพินิจ</div>`;
+  else if(fuWhy.length)fu=`<span class="st returned">ติดตามต่อ</span> ${esc(fuWhy.join(" · "))}<div class="fine" style="margin-top:4px">กำหนดวันติดตามในส่วนที่ 8 ข้อ 7</div>`;
+  else fu=`<span class="st approved">ประเมินผลแล้วยุติบริการได้</span> <span class="fine">ระดับ${sevOf(d)}</span><div class="fine" style="margin-top:4px">ไม่ต้องติดตาม เว้นแต่มีปัญหาใหม่ ปรับได้ตามดุลยพินิจ</div>`;
   $("fu").innerHTML=fu;
+
+  const sec={1:!!$("hn").value.trim()&&cost>0,2:!pend.length,3:fra!=null&&!!mem&&inc!=null,4:null,5:d!=null,6:level===1?!debtFail:null,7:status==="ok"&&level>=1?!docMiss.length:null,8:PROBS.some((_,i)=>ck("pr"+i))};
+  Object.entries(sec).forEach(([k,v])=>{const fs=$("s"+k),a=document.querySelector(`#secnav a[data-s="${k}"]`);
+    const st=v===true?"1":(v===false&&(k==="2"||k==="6"||k==="7")?"0":"");
+    if(st)fs.dataset.ok=st;else delete fs.dataset.ok;a.className=st==="1"?"ok":st==="0"?"bad":"";});
 
   const rightsSum=RIGHTS.map((r,i)=>`${r.split(" (")[0]}: ${(RSTATE.find(x=>x[0]===rs[i])||["",""])[1]||"-"}`);
   const L=[];
   L.push("สรุปผลประเมินพิจารณาอนุเคราะห์/ค้างชำระ");
   L.push(`HN ${$("hn").value||"-"} AN ${$("an").value||"-"} วันที่ ${$("dt").value||"-"} (${$("ptype").value})`);
-  L.push(`ค่ารักษา ${fmt(cost)} บาท สิทธิครอบคลุม ${fmt(cov)} บาท ค่าพาหนะ/อุปกรณ์ ${fmt(oth)} บาท ยอดที่ผู้ป่วยรับผิดชอบ ${fmt(owe)} บาท`);
+  L.push(`ค่ารักษา ${fmt(cost)} บาท สิทธิ/กองทุนจ่าย ${fmt(cov)} บาท ค่าพาหนะ ${fmt(trn)} บาท ค่าอุปกรณ์/อื่น ๆ ${fmt(eqp)} บาท ยอดที่ผู้ป่วยรับผิดชอบ ${fmt(owe)} บาท`);
   L.push("ตรวจสิทธิ: "+rightsSum.join("; "));
   L.push(`ครัวเรือน ${mem??"-"} คน รายได้ ${fmt(inc)} บาท/เดือน รายได้ต่อหัว ${fmt(pc)} บาท (เส้นความยากจน 3,078)`);
-  L.push(`คะแนนรายได้ครอบครัว ${fra??"-"} / d870 ระดับ ${d??"-"}`);
+  L.push(`คะแนนรายได้ครอบครัว ${fra??"-"} / d870 ระดับ ${d??"-"}${d!=null?" ("+sevOf(d)+")":""}`);
   L.push(`ผล: ${resTxt}${sub?" – "+sub:""}`);
   why.forEach(w=>L.push("- "+w));
   if(status==="ok"&&level>=1)L.push(`ยอดที่เสนอ ${fmt(amount)} บาท · ผู้มีอำนาจอนุมัติตามวงเงิน: ${TIERS[tier][1]}`);
-  if(status==="ok"&&level===1)L.push(`ชำระทันที ${fmt(payNow)} บาท ผ่อน ${fmt(inst)} บาท × ${nI||"-"} งวด`);
+  if(status==="ok"&&level===1)L.push(`ชำระทันที ${fmt(payNow)} บาท ผ่อน ${fmt(inst)} บาท × ${nI||"-"} งวด เริ่ม ${$("instStart").value||"-"}`);
   if($("swNote").value.trim())L.push("ความเห็นนักสังคมสงเคราะห์: "+$("swNote").value.trim());
   L.push("การติดตาม: "+(fuWhy.length?"ติดตามต่อ ("+fuWhy.join(", ")+")":"ประเมินผลแล้วยุติบริการ"));
   L.push("ผู้ประเมิน ............................ นักสังคมสงเคราะห์");
   $("summary").value=L.join("\n");
 
   const submittable=status==="ok"&&level>=1&&!debtFail&&amount>0;
-  R={submittable,level,amount,tier,resTxt,sub,why,owe,cost,cov,oth,payNow,inst,nI,mem,inc,pc,fra,d,rightsSum,special,vgN,followUp:fuWhy};
+  R={submittable,status,level,amount,tier,resTxt,sub,why,owe,cost,cov,oth,trn,eqp,payNow,inst,nI,mem,inc,pc,fra,d,rightsSum,special,vgN,followUp:fuWhy,crit2537};
+  $("reqRow").hidden=!(status==="ok"&&level>=1);
   updateSubmit();
 }
 
 function formState(){const o={};$("f").querySelectorAll("input,select,textarea").forEach(e=>{if(!e.id)return;o[e.id]=(e.type==="checkbox"||e.type==="radio")?e.checked:e.value});return o}
-function loadForm(o){$("f").reset();Object.entries(o||{}).forEach(([k,v])=>{const e=$(k);if(!e||!$("f").contains(e))return;if(e.type==="checkbox"||e.type==="radio")e.checked=!!v;else e.value=v??""});compute()}
+function loadForm(o){
+  o=Object.assign({},o||{});
+  if(o.other!=null&&o.transport==null){o.transport=o.other;}
+  if(o.aRec!=null&&o.doc1==null){o.doc1=o.aRec;o.doc2=o.aRec;o.doc6=o.aReq&&o.aDoc;o.doc0=o.aDocs;o.doc3=o.aDocs;o.doc5=o.aDocs;}
+  $("f").reset();Object.entries(o).forEach(([k,v])=>{const e=$(k);if(!e||!$("f").contains(e))return;if(e.type==="checkbox"||e.type==="radio")e.checked=!!v;else e.value=v??""});compute()}
 
 function setExample(){
-  const v={hn:"6812345",an:"6800987",ptype:"ผู้ป่วยใน (IPD)",cost:18450,covered:0,other:600,members:4,income:9000,debtAmt:30000,debtSrc:"นอกระบบ",swNote:"ผู้ป่วยสูงอายุ รายได้ครัวเรือนไม่แน่นอน มีหนี้นอกระบบ ญาติไม่สามารถช่วยเหลือได้"};
+  const v={hn:"6812345",an:"6800987",ptype:"ผู้ป่วยใน (IPD)",ward:"อายุรกรรมชาย",cost:18450,covered:0,transport:600,equip:0,members:4,income:9000,debtAmt:30000,debtSrc:"นอกระบบ",rightsStatus:"ไม่มีสิทธิ",
+    swNote:"ผู้ป่วยสูงอายุ รายได้ครัวเรือนไม่แน่นอน มีหนี้นอกระบบ ญาติไม่สามารถช่วยเหลือได้",sdma:"d870 ระดับ 3",planS:"ประสานขออนุเคราะห์ค่ารักษาพยาบาลและค่าพาหนะกลับบ้าน",planL:"ประสาน อปท. เรื่องเบี้ยยังชีพผู้สูงอายุ",rsN0:"บุตรสาวดูแลหลังจำหน่าย",rsN4:"อบต. ในพื้นที่"};
   Object.entries(v).forEach(([k,x])=>$(k).value=x);
-  $("dt").value=new Date().toISOString().slice(0,10);
+  const t=todayISO();["dt","consultDt"].forEach(k=>$(k).value=t);
   for(let i=0;i<7;i++)$("rt"+i).value="na";
-  ["noSave","tempJob","pOld","vg9","vg14","aRec","aReq","aDoc"].forEach(id=>$(id).checked=true);
+  ["noSave","tempJob","pOld","pChronic","vg9","vg14","doc0","doc1","doc2","doc3","doc5","doc6","pr0","pr4","famTree","rsH0","rsC4","tx0","tx3","tx5"].forEach(id=>$(id).checked=true);
   $("fra1").checked=true;$("d3").checked=true;
 }
-function clearForm(){$("f").reset();exampleOn=false;$("exBox").hidden=true;$("dt").value=new Date().toISOString().slice(0,10);$("submitMsg").textContent="";$("submitMsg").className="msg";compute();}
+function clearForm(){$("f").reset();exampleOn=false;$("exBox").hidden=true;$("dt").value=todayISO();$("submitMsg").textContent="";$("submitMsg").className="msg";compute();}
 $("clearBtn").addEventListener("click",()=>{clearForm();$("hn").focus();});
 $("f").addEventListener("input",compute);$("f").addEventListener("change",compute);
-$("copyBtn").addEventListener("click",()=>{const t=$("summary").value;const ok=()=>{$("copyMsg").textContent="คัดลอกแล้ว วางลงแบบบันทึกได้เลย";};
+$("copyBtn").addEventListener("click",()=>{const t=$("summary").value;const ok=()=>{$("copyMsg").textContent="คัดลอกแล้ว วางลงโปรแกรมสังคมสงเคราะห์หรือแบบบันทึกได้";};
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,()=>{fallback()});}else fallback();
   function fallback(){const a=$("summary");a.style.position="static";a.style.width="100%";a.style.height="160px";a.removeAttribute("aria-hidden");a.select();$("copyMsg").textContent="กด Ctrl+C (หรือคัดลอก) เพื่อคัดลอกข้อความที่เลือกไว้";}});
+$("secnav").addEventListener("click",e=>{const a=e.target.closest("a");if(!a)return;e.preventDefault();scrollToEl($(a.getAttribute("href").slice(1)));});
+
+/* the current form as a case object (used for submit and for printing drafts) */
+function caseFromForm(){
+  const fs=formState();const d=$("dt").value||todayISO();
+  return{
+    hn:$("hn").value.trim(),an:$("an").value.trim(),ptype:$("ptype").value,assessedOn:d,fy:fyOf(d),
+    cost:R.cost,covered:R.cov,other:R.oth,transport:R.trn,equip:R.eqp,owe:R.owe,payNow:R.payNow,inst:R.inst,nInst:R.nI,
+    members:R.mem,income:R.inc,pc:R.pc==null?null:Math.round(R.pc),fra:R.fra,d870:R.d,
+    level:R.status==="ok"?R.level:(R.status==="none"?0:null),result:R.resTxt,resultSub:R.sub,amount:R.amount,tier:Math.max(0,R.tier),
+    why:R.why,rights:R.rightsSum,special:R.special,vgN:R.vgN,followUp:R.followUp,
+    swNote:$("swNote").value.trim(),docs:DOCS.map((_,i)=>ck("doc"+i)),form:fs
+  };
+}
 
 /* ================= tabs ================= */
-const TABS=[["tab-a","view-a"],["tab-q","view-q"],["tab-r","view-r"]];
-function showTab(id){TABS.forEach(([t,v])=>{const on=t===id;$(t).setAttribute("aria-selected",on);$(v).hidden=!on;});$("bar").style.visibility=id==="tab-a"?"":"hidden";try{localStorage.setItem("sw-tab",id)}catch(e){}}
+const TABS=[["tab-a","view-a"],["tab-q","view-q"],["tab-m","view-m"],["tab-r","view-r"]];
+function showTab(id){TABS.forEach(([t,v])=>{const on=t===id;$(t).setAttribute("aria-selected",on);$(v).hidden=!on;});$("bar").style.visibility=id==="tab-a"?"":"hidden";if(id==="tab-m")renderReport();try{localStorage.setItem("sw-tab",id)}catch(e){}}
 TABS.forEach(([t])=>$(t).addEventListener("click",()=>showTab(t)));
 
 /* ================= online system (Apps Script + Google Sheets) ================= */
@@ -602,8 +748,7 @@ function canDecide(c){
 }
 const STL={pending:"รอพิจารณา",approved:"อนุมัติ",rejected:"ไม่อนุมัติ",returned:"ส่งกลับแก้ไข"};
 const ACT={submit:"ส่งเสนออนุมัติ",resubmit:"แก้ไขและส่งใหม่",approve:"อนุมัติ",reject:"ไม่อนุมัติ",escalate:"เสนอระดับถัดไป",return:"ส่งกลับแก้ไข"};
-const code=c=>"#"+String(c.id).slice(-6).toUpperCase();
-async function names(){return users}
+const code=c=>c.id?"#"+String(c.id).slice(-6).toUpperCase():"(ร่าง)";
 const nm=(P,id)=>(P[id]&&P[id].name)||id||"-";
 function msg(el,t,kind,keep){if(!el)return;el.textContent=t;el.className="msg "+(kind||"");if(keep){el.dataset.keep="1";setTimeout(()=>{delete el.dataset.keep},4000)}}
 const ERR=e=>(e&&e.message)||"เชื่อมต่อระบบไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง";
@@ -622,7 +767,7 @@ function setUsers(list){users={};(list||[]).forEach(u=>users[u.username]=u);}
 /* ---------- auth UI ---------- */
 function renderAuth(){
   const box=$("auth");box.innerHTML="";
-  if(!API_URL){box.innerHTML='<span class="notice warn" style="display:inline-block">ยังไม่ได้ตั้งค่า API_URL ในไฟล์ config.js ตอนนี้ใช้ได้เฉพาะการประเมินและคัดลอกสรุปผล</span>';return}
+  if(!API_URL){box.innerHTML='<span class="fine">ยังไม่ได้ตั้งค่า API_URL ใน config.js · ใช้ได้เฉพาะการประเมินและพิมพ์เอกสาร</span>';return}
   if(!meU){
     box.innerHTML=`<form id="loginF" class="login"><input id="lu" autocomplete="username" placeholder="ชื่อผู้ใช้" aria-label="ชื่อผู้ใช้" required><input id="lp" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN 6 หลัก" aria-label="PIN" maxlength="6" required><button type="submit">เข้าสู่ระบบ</button><span class="msg" id="lMsg"></span></form>`;
     $("loginF").addEventListener("submit",async e=>{e.preventDefault();const b=e.target.querySelector("button");b.disabled=true;msg($("lMsg"),"กำลังตรวจสอบ…");
@@ -631,7 +776,7 @@ function renderAuth(){
     return;
   }
   const t=myTiers();
-  box.innerHTML=`<span>เข้าใช้ในชื่อ <b id="meName"></b> · ${t.length?"ผู้มีอำนาจระดับ "+t.map(i=>esc(TSHORT[i])).join(", "):"ยังไม่ได้กำหนดระดับอำนาจอนุมัติ"}${meU.admin?" · ผู้ดูแลระบบ":""}</span> <button type="button" class="ghost sm" id="pinBtn">เปลี่ยน PIN</button> <button type="button" class="ghost sm" id="outBtn">ออกจากระบบ</button>`;
+  box.innerHTML=`<span><b id="meName"></b> · ${t.length?esc(t.map(i=>TSHORT[i]).join(", ")):"ยังไม่ได้กำหนดระดับอำนาจอนุมัติ"}${meU.admin?" · ผู้ดูแลระบบ":""}</span><button type="button" class="ghost sm" id="pinBtn">เปลี่ยน PIN</button><button type="button" class="ghost sm" id="outBtn">ออกจากระบบ</button>`;
   $("meName").textContent=meU.name||meU.username;
   $("outBtn").addEventListener("click",async()=>{try{await api("logout")}catch(e){}signedOut()});
   $("pinBtn").addEventListener("click",()=>showPinChange(false));
@@ -665,15 +810,15 @@ async function refresh(force){
     if(j.unchanged)return;
     ver=j.ver;cases=j.cases||[];setUsers(j.users);
     const meNow=users[me()];if(meNow){meU.tiers=meNow.tiers;meU.name=meNow.name}
-    renderQueue();if(adminList===null&&meU.admin)loadAdmin();else renderRoles();
+    renderQueue();renderReport();if(adminList===null&&meU.admin)loadAdmin();else renderRoles();
     $("lastSync").textContent="อัปเดตล่าสุด "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
   }catch(e){if(e&&e.error!=="auth"){$("connMsg").hidden=false;$("connMsg").textContent=ERR(e)}}
 }
 function renderAll(){
   const on=online();
-  $("offQ").hidden=on;$("onQ").hidden=!on;$("offR").hidden=on;$("onR").hidden=!on;
+  $("offQ").hidden=on;$("onQ").hidden=!on;$("offR").hidden=on;$("onR").hidden=!on;$("offM").hidden=on;$("onM").hidden=!on;
   if(!on){$("badgeMine").textContent="";}
-  updateSubmit();renderQueue();renderRoles();
+  updateSubmit();renderQueue();renderRoles();renderReport();
 }
 
 /* ---------- submit ---------- */
@@ -689,24 +834,16 @@ function updateSubmit(){
   if(!why&&submittedSig===sig)why="ส่งรายการนี้แล้ว";
   b.disabled=!!why;b.textContent=editingId?"ส่งใหม่เพื่อพิจารณา":"ส่งเสนออนุมัติออนไลน์";
   const m=$("submitMsg");
-  if(!m.dataset.keep){m.className="msg";m.textContent=why;}
+  if(!m.dataset.keep){m.className="msg";m.textContent=API_URL?why:"";}
 }
 $("submitBtn").addEventListener("click",async()=>{
   if(!R||!R.submittable||!online())return;
   const b=$("submitBtn");b.disabled=true;
-  const fs=formState();const d=$("dt").value||new Date().toISOString().slice(0,10);
-  const c={
-    hn:$("hn").value.trim(),an:$("an").value.trim(),ptype:$("ptype").value,assessedOn:d,fy:fyOf(d),
-    cost:R.cost,covered:R.cov,other:R.oth,owe:R.owe,payNow:R.payNow,inst:R.inst,nInst:R.nI,
-    members:R.mem,income:R.inc,pc:R.pc==null?null:Math.round(R.pc),fra:R.fra,d870:R.d,
-    level:R.level,result:R.resTxt,resultSub:R.sub,amount:R.amount,
-    why:R.why,rights:R.rightsSum,special:R.special,vgN:R.vgN,followUp:R.followUp,
-    swNote:$("swNote").value.trim(),docs:{record:ck("aRec"),request:ck("aReq"),doctor:ck("aDoc"),checklist:ck("aDocs")},form:fs
-  };
+  const c=caseFromForm();
   msg($("submitMsg"),"กำลังบันทึก…","",true);
   try{
     const j=await api("submit",{case:c,editingId});
-    submittedSig=JSON.stringify(fs);
+    submittedSig=JSON.stringify(c.form);
     msg($("submitMsg"),`ส่งแล้ว รอ${TSHORT[j.tier]}พิจารณา ติดตามสถานะได้ที่แท็บรายการเสนออนุมัติ`,"ok",true);
     endEdit();refresh(true);
   }catch(e){msg($("submitMsg"),ERR(e),"err",true)}
@@ -714,6 +851,11 @@ $("submitBtn").addEventListener("click",async()=>{
 });
 function endEdit(){editingId=null;$("editBox").hidden=true;updateSubmit();}
 $("cancelEdit").addEventListener("click",()=>{endEdit();clearForm();});
+const assessorName=()=>meU?(meU.name||meU.username):"";
+$("pRec").addEventListener("click",()=>printDoc(recModel(caseFromForm(),assessorName())));
+$("wRec").addEventListener("click",()=>downloadDoc(recModel(caseFromForm(),assessorName()),$("docMsg"),$("wRec")));
+$("pReqD").addEventListener("click",()=>printDoc(reqModel(Object.assign(caseFromForm(),{status:"draft",submittedBy:me()}))));
+$("wReqD").addEventListener("click",()=>downloadDoc(reqModel(Object.assign(caseFromForm(),{status:"draft",submittedBy:me()})),$("docMsg"),$("wReqD")));
 
 /* ---------- queue ---------- */
 $("filters").addEventListener("click",e=>{const b=e.target.closest(".fchip");if(!b)return;filter=b.dataset.f;document.querySelectorAll(".fchip").forEach(x=>x.setAttribute("aria-pressed",x===b));renderQueue();});
@@ -737,7 +879,7 @@ function renderQueue(){
   const anyRole=Object.values(users).some(u=>(u.tiers||[]).length);
   $("noRoles").hidden=anyRole;
   const fy=fyOf();
-  const appr=cases.filter(c=>+c.fy===fy&&c.status==="approved");
+  const appr=cases.filter(c=>c.status==="approved"&&fyOf((c.decision||{}).at||c.updatedAt)===fy);
   const apAmt=appr.reduce((s,c)=>s+(+((c.decision||{}).amount??c.amount)||0),0);
   $("stats").innerHTML=[[cases.filter(c=>c.status==="pending").length,"รอพิจารณาทั้งหมด"],[mine,"รอคุณพิจารณา"],[appr.length,`อนุมัติแล้ว ปีงบ ${fy}`],[fmt(apAmt),`ยอดอนุมัติ ปีงบ ${fy} (บาท)`]]
     .map(([n,l])=>`<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
@@ -751,6 +893,14 @@ function renderQueue(){
 }
 $("qlist").addEventListener("click",e=>{const b=e.target.closest(".qitem");if(!b)return;selId=b.dataset.id;document.querySelectorAll(".qitem").forEach(x=>x.setAttribute("aria-current",x===b));renderDetail(true);});
 
+function docsLine(c){
+  const D=c.docs;
+  if(Array.isArray(D)){const req=DOCS.map((_,i)=>i).filter(i=>!DOC_OPT.includes(i)&&(i!==DOC_DEBT||+c.level===1));const miss=req.filter(i=>!D[i]);
+    return `ครบ ${req.length-miss.length}/${req.length} รายการ${miss.length?`<ul>${miss.map(i=>`<li>ขาด: ${esc(DOCS[i])}</li>`).join("")}</ul>`:""}`;}
+  D2=D||{};const yes=v=>v?"✓":"✗";
+  return `${yes(D2.record)} แบบบันทึกฯ · ${yes(D2.request)} แบบขออนุเคราะห์ฯ · ${yes(D2.doctor)} ความเห็นแพทย์ · ${yes(D2.checklist)} เช็กลิสต์`;
+}
+var D2;
 let detailSig=null;
 function renderDetail(scroll){
   const c=cases.find(x=>x.id===selId);
@@ -758,7 +908,8 @@ function renderDetail(scroll){
   if(!c){detailSig=null;el.innerHTML=`<div class="empty">เลือกรายการทางซ้ายเพื่อดูข้อมูลและบันทึกผลการพิจารณา</div>`;return}
   const sig=c.id+"|"+c.updatedAt+"|"+c.status+"|"+c.tier+"|"+myMax();
   if(sig===detailSig&&!scroll)return;detailSig=sig;
-  const P=users,D=c.docs||{},yes=v=>v?"✓":"✗";
+  const P=users;
+  const oth=c.transport!=null?`ค่าพาหนะ ${fmt(c.transport)} · ค่าอุปกรณ์/อื่น ๆ ${fmt(c.equip)}`:`ค่าพาหนะ/อุปกรณ์ ${fmt(c.other)}`;
   let h=`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline"><h2>HN ${esc(c.hn||"-")}${c.an?" · AN "+esc(c.an):""}</h2><span class="st ${esc(c.status)}">${STL[c.status]||""}${c.status==="pending"?" · "+esc(TSHORT[c.tier]):""}</span></div>
   <dl class="kv">
     <dt>เลขรายการ</dt><dd>${code(c)}</dd>
@@ -766,14 +917,15 @@ function renderDetail(scroll){
     <dt>ยอดที่เสนอ</dt><dd><b>${fmt(c.amount)} บาท</b> (วงเงิน${esc(TIERS[c.requestedTier??c.tier][2])})</dd>
     <dt>ผู้มีอำนาจ</dt><dd>${esc(TIERS[c.tier][1])}</dd>
     <dt>ประเภท/วันที่</dt><dd>${esc(c.ptype||"-")} · ประเมิน ${thDate(c.assessedOn)}</dd>
-    <dt>ค่ารักษา</dt><dd>${fmt(c.cost)} · สิทธิครอบคลุม ${fmt(c.covered)} · ค่าพาหนะ/อุปกรณ์ ${fmt(c.other)}</dd>
+    <dt>ค่ารักษา</dt><dd>${fmt(c.cost)} · สิทธิ/กองทุนจ่าย ${fmt(c.covered)} · ${oth}</dd>
     <dt>ผู้ป่วยรับผิดชอบ</dt><dd>${fmt(c.owe)} บาท · ชำระได้ทันที ${fmt(c.payNow)}${+c.level===1&&c.inst?` · ผ่อน ${fmt(c.inst)} × ${c.nInst||"-"} งวด`:""}</dd>
     <dt>ครัวเรือน</dt><dd>${c.members??"-"} คน · รายได้ ${fmt(c.income)} บาท/เดือน · ต่อหัว ${fmt(c.pc)}</dd>
-    <dt>คะแนน</dt><dd>รายได้ครอบครัว ${c.fra??"-"} · d870 ระดับ ${c.d870??"-"}</dd>
-    <dt>เอกสาร</dt><dd>${yes(D.record)} แบบบันทึกฯ · ${yes(D.request)} แบบขออนุเคราะห์ฯ · ${yes(D.doctor)} ความเห็นแพทย์ · ${yes(D.checklist)} เช็กลิสต์</dd>
+    <dt>คะแนน</dt><dd>รายได้ครอบครัว ${c.fra??"-"} · d870 ระดับ ${c.d870??"-"}${c.d870!=null?" ("+sevOf(+c.d870)+")":""}</dd>
+    <dt>เอกสาร 8.1</dt><dd>${docsLine(c)}</dd>
     <dt>ผู้เสนอ</dt><dd>${esc(nm(P,c.submittedBy))} · ${thDT(c.submittedAt)}</dd>
   </dl>
-  <div class="btns"><button type="button" class="ghost" id="pReq">พิมพ์แบบขออนุเคราะห์ฯ</button><button type="button" class="ghost" id="wReq">ดาวน์โหลด Word (.docx)</button></div>
+  <div class="docs"><div class="docrow"><span>แบบขออนุเคราะห์ฯ</span><span class="btns"><button type="button" class="ghost sm" id="pReq">พิมพ์</button><button type="button" class="ghost sm" id="wReq">Word</button></span></div>
+  <div class="docrow"><span>แบบบันทึกงานสังคมสงเคราะห์</span><span class="btns"><button type="button" class="ghost sm" id="pRec2">พิมพ์</button><button type="button" class="ghost sm" id="wRec2">Word</button></span></div></div>
   <div class="msg fine" id="pMsg">พิมพ์ได้ทุกสถานะ ผลที่บันทึกแล้วจะเติมในตารางผู้มีอำนาจอนุมัติ</div>
   <div><h3>เหตุผลตามเกณฑ์</h3><ul>${(c.why||[]).map(w=>`<li>${esc(w)}</li>`).join("")||"<li>–</li>"}</ul></div>
   ${c.swNote?`<div><h3>ความเห็นนักสังคมสงเคราะห์</h3><p style="margin:4px 0 0;white-space:pre-wrap">${esc(c.swNote)}</p></div>`:""}
@@ -784,9 +936,9 @@ function renderDetail(scroll){
       const lim=TIERS[myMax()][0];
       h+=`<div class="decide"><h3>บันทึกผลการพิจารณา <span class="fine">ในฐานะ${esc(TSHORT[myMax()])}</span></h3>
         <div class="acts" role="radiogroup" aria-label="ผลการพิจารณา">
-          ${[["approve","อนุมัติ"],["escalate","เสนอระดับถัดไป"],["return","ส่งกลับแก้ไข"],["reject","ไม่อนุมัติ"]].filter(([a])=>a!=="escalate"||c.tier<3).map(([a,t],i)=>`<label class="opt"><input type="radio" name="dact" value="${a}"${i===0?" checked":""}><span>${t}</span></label>`).join("")}
+          ${[["approve","อนุมัติ"],["escalate","เสนอระดับถัดไป"],["return","ส่งกลับแก้ไข"],["reject","ไม่อนุมัติ"]].filter(([a])=>a!=="escalate"||c.tier<3).filter(([a])=>a!=="reject"||c.tier>=1).map(([a,t],i)=>`<label class="opt"><input type="radio" name="dact" value="${a}"${i===0?" checked":""}><span>${t}</span></label>`).join("")}
         </div>
-        <div class="row"><label class="f">ยอดที่อนุมัติ (บาท)<input type="number" id="dAmt" min="0" step="1" value="${Math.round(c.amount||0)}"></label></div>
+        <div class="row"><label class="f">ยอดที่อนุมัติ (บาท ไม่เกิน ${fmt(c.owe)})<input type="number" id="dAmt" min="0" step="1" value="${Math.round(c.amount||0)}"></label></div>
         <label class="f">ความเห็น/เงื่อนไข<textarea class="in" id="dNote" maxlength="1000"></textarea></label>
         <div class="btns"><button type="button" id="dGo">บันทึกผล</button></div>
         <div class="msg" id="dMsg">${Number.isFinite(lim)?`วงเงินของคุณไม่เกิน ${fmt(lim)} บาท`:""}</div></div>`;
@@ -801,9 +953,11 @@ function renderDetail(scroll){
     h+=`<p class="notice ${c.status==="approved"?"info":"warn"}" style="margin:0"><b>${STL[c.status]}</b>${c.status==="approved"?` ${fmt(c.decision.amount)} บาท`:""} โดย ${esc(nm(P,c.decision.by))} (${esc(TSHORT[c.decision.tier??c.tier])}) ${thDT(c.decision.at)}${c.status==="approved"?"<br>ดำเนินการต่อ: แจ้งการเงินบันทึกการอนุเคราะห์/ตั้งลูกหนี้ และเก็บผลนี้ไว้กับแบบขออนุเคราะห์ฯ":""}</p>`;
   }
   el.innerHTML=h;
-  if(scroll&&window.matchMedia("(max-width:900px)").matches)el.scrollIntoView({behavior:"smooth",block:"start"});
-  $("pReq").addEventListener("click",()=>printReq(c));
-  $("wReq").addEventListener("click",()=>downloadReq(c,$("pMsg"),$("wReq")));
+  if(scroll&&window.matchMedia("(max-width:940px)").matches)scrollToEl(el);
+  $("pReq").addEventListener("click",()=>printDoc(reqModel(c)));
+  $("wReq").addEventListener("click",()=>downloadDoc(reqModel(c),$("pMsg"),$("wReq")));
+  $("pRec2").addEventListener("click",()=>printDoc(recModel(c,nm(P,c.submittedBy))));
+  $("wRec2").addEventListener("click",()=>downloadDoc(recModel(c,nm(P,c.submittedBy)),$("pMsg"),$("wRec2")));
   const go=$("dGo");
   if(go){
     const sync=()=>{const a=(document.querySelector("input[name=dact]:checked")||{}).value;$("dAmt").closest(".row").hidden=a!=="approve";};
@@ -820,11 +974,59 @@ async function decide(c,action,amount,note){
   if(action==="approve"){
     if(amount==null||amount<0){msg(m,"ระบุยอดที่อนุมัติ","err");return}
     if(amount>TIERS[myMax()][0]){msg(m,`ยอด ${fmt(amount)} บาท เกินวงเงินของคุณ ให้เลือก "เสนอระดับถัดไป"`,"err");return}
+    if(c.owe!=null&&amount>+c.owe){msg(m,`ยอดอนุมัติเกินยอดที่ผู้ป่วยรับผิดชอบ (${fmt(c.owe)} บาท)`,"err");return}
   }
   if(btn)btn.disabled=true;msg(m,"กำลังบันทึก…");
   try{await api("decide",{id:c.id,tier:c.tier,decision:action,amount,note});detailSig=null;await refresh(true);}
   catch(e){msg(m,ERR(e),"err");if(btn)btn.disabled=false;if(e&&e.error==="conflict")refresh(true);}
 }
+
+/* ---------- monthly report + prescription review ---------- */
+const ymOf=iso=>{const d=new Date(iso);return isNaN(d)?"":d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const thMonth=ym=>{if(!ym)return"";const [y,mm]=ym.split("-");return new Date(+y,+mm-1,1).toLocaleDateString("th-TH",{month:"long",year:"numeric"})};
+$("mMonth").value=ymOf(new Date().toISOString());
+$("mMonth").addEventListener("change",()=>renderReport());
+function reportData(){
+  const ym=$("mMonth").value;
+  const dec=cases.filter(c=>c.decision&&ymOf(c.decision.at)===ym&&(c.status==="approved"||c.status==="rejected"));
+  const ap=dec.filter(c=>c.status==="approved").sort((a,b)=>String(a.decision.at).localeCompare(String(b.decision.at)));
+  const amt=c=>+c.decision.amount||0;
+  const byTier=[0,1,2,3].map(t=>{const x=ap.filter(c=>+(c.decision.tier??c.tier)===t);const A=x.filter(c=>+c.level>=2),D=x.filter(c=>+c.level===1);
+    return[TSHORT[t],A.length,A.reduce((s,c)=>s+amt(c),0),D.length,D.reduce((s,c)=>s+amt(c),0)]});
+  const tot=[1,2,3,4].map(k=>byTier.reduce((s,r)=>s+r[k],0));
+  return{ym,ap,rej:dec.filter(c=>c.status==="rejected"),byTier,tot,amt,pend:cases.filter(c=>c.status==="pending").length};
+}
+function reportTables(X,pr){
+  const T=pr?"":' class="ut"',N=pr?' class="n"':' class="n"';
+  let h=`<table${T}><thead><tr><th>ผู้มีอำนาจอนุมัติ</th><th${N}>อนุเคราะห์ (ราย)</th><th${N}>ยอดอนุเคราะห์ (บาท)</th><th${N}>ค้างชำระ (ราย)</th><th${N}>ยอดค้างชำระ (บาท)</th></tr></thead><tbody>`+
+    X.byTier.map(r=>`<tr><td>${esc(r[0])}</td><td${N}>${r[1]}</td><td${N}>${fmt(r[2])}</td><td${N}>${r[3]}</td><td${N}>${fmt(r[4])}</td></tr>`).join("")+
+    `<tr class="tot"><td${pr?' class="bold"':""}>รวม</td><td class="n${pr?" bold":""}">${X.tot[0]}</td><td class="n${pr?" bold":""}">${fmt(X.tot[1])}</td><td class="n${pr?" bold":""}">${X.tot[2]}</td><td class="n${pr?" bold":""}">${fmt(X.tot[3])}</td></tr></tbody></table>`;
+  h+=pr?`<h2>รายการที่อนุมัติ</h2>`:`<h3 style="margin-top:6px">รายการที่อนุมัติ ${X.ap.length} ราย</h3>`;
+  h+=X.ap.length?`<div class="tblwrap"><table${T}><thead><tr><th>วันที่อนุมัติ</th><th>HN</th><th>ประเภท</th><th${N}>ยอดที่เสนอ</th><th${N}>ยอดอนุมัติ</th><th>ผู้อนุมัติ</th></tr></thead><tbody>${X.ap.map(c=>`<tr><td>${thDate(c.decision.at)}</td><td>${esc(c.hn)}</td><td>${+c.level===1?"ค้างชำระ":esc(c.result)}</td><td${N}>${fmt(c.amount)}</td><td${N}>${fmt(X.amt(c))}</td><td>${esc(nm(users,c.decision.by))}</td></tr>`).join("")}</tbody></table></div>`:(pr?"<p>ไม่มีรายการ</p>":`<div class="empty">ไม่มีรายการที่อนุมัติในเดือนนี้</div>`);
+  return h;
+}
+function debtRows(){
+  const now=Date.now();
+  return cases.filter(c=>c.status==="approved"&&+c.level===1&&c.decision).map(c=>{const a=new Date(c.decision.at);const due=new Date(a);due.setFullYear(due.getFullYear()+2);return{c,due,days:Math.ceil((due-now)/864e5)}}).sort((x,y)=>x.due-y.due);
+}
+function renderReport(){
+  if(!online()){$("mBody").innerHTML="";$("mDebt").innerHTML="";return}
+  const X=reportData();
+  $("mBody").innerHTML=`<div class="stats"><div class="stat"><div class="n">${X.tot[0]}</div><div class="l">อนุเคราะห์ (ราย)</div></div><div class="stat"><div class="n">${fmt(X.tot[1])}</div><div class="l">ยอดอนุเคราะห์ (บาท)</div></div><div class="stat"><div class="n">${X.tot[2]}</div><div class="l">ค้างชำระ (ราย)</div></div><div class="stat"><div class="n">${fmt(X.tot[3])}</div><div class="l">ยอดค้างชำระ (บาท)</div></div></div>
+   <p class="fine" style="margin:0">ไม่อนุมัติ ${X.rej.length} ราย · รอพิจารณาขณะนี้ ${X.pend} ราย</p><div class="tblwrap">${reportTables(X,false)}</div>`;
+  const D=debtRows();
+  $("mDebt").innerHTML=D.length?`<div class="tblwrap"><table class="ut"><thead><tr><th>HN</th><th>วันที่อนุมัติ</th><th class="n">ยอดค้างชำระ</th><th>ผ่อน</th><th>ครบอายุความ</th><th class="n">เหลือ (วัน)</th></tr></thead><tbody>${D.map(r=>`<tr class="${r.days<183?"soon":""}"><td>${esc(r.c.hn)}</td><td>${thDate(r.c.decision.at)}</td><td class="n">${fmt(r.c.decision.amount)}</td><td>${r.c.inst?fmt(r.c.inst)+" × "+(r.c.nInst||"-"):"-"}</td><td>${thDate(r.due.toISOString())}</td><td class="n">${r.days<0?"เลยกำหนด":r.days}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">ยังไม่มีลูกหนี้ค้างชำระที่อนุมัติในระบบ</div>`;
+}
+$("mPrint").addEventListener("click",()=>{
+  if(!online())return;const X=reportData();
+  const html=`<h1>รายงานสรุปการอนุเคราะห์และค้างชำระ</h1><p class="c">กลุ่มงานสังคมสงเคราะห์ โรงพยาบาลสมเด็จพระสังฆราช (อมฺพรมหาเถร)</p><p class="c">ประจำเดือน ${esc(thMonth(X.ym))}</p>
+   <p class="bf2"><b>เรียน</b>   ผู้อำนวยการโรงพยาบาลสมเด็จพระสังฆราช (อมฺพรมหาเถร)</p>
+   <p class="first bf1">กลุ่มงานสังคมสงเคราะห์ขอรายงานสรุปการอนุเคราะห์และการส่งทำค้างชำระ ประจำเดือน ${esc(thMonth(X.ym))} ตามแนวทางการปฏิบัติงานด้านการอนุเคราะห์ผู้ป่วย ฉบับปรับปรุง พ.ศ. 2569 อนุเคราะห์ ${X.tot[0]} ราย รวม ${fmt(X.tot[1])} บาท ส่งทำค้างชำระ ${X.tot[2]} ราย รวม ${fmt(X.tot[3])} บาท ไม่อนุมัติ ${X.rej.length} ราย ดังนี้</p>
+   ${reportTables(X,true)}<p class="first bf1">จึงเรียนมาเพื่อโปรดทราบ</p>
+   <p class="r bf2">ลงชื่อ <span class="dl" style="width:12em"></span></p><p class="r">(<span class="dl" style="width:12em"></span>)</p><p class="r">หัวหน้ากลุ่มงานสังคมสงเคราะห์</p>
+   <p class="meta">พิมพ์จากระบบเสนออนุมัติออนไลน์ ณ ${thDT(new Date().toISOString())}</p>`;
+  printHTML(html);
+});
 
 /* ---------- users & roles ---------- */
 async function loadAdmin(){
@@ -840,7 +1042,7 @@ function renderRoles(){
     const ppl=d.querySelector(".ppl");
     const list=Object.values(users).filter(u=>(u.tiers||[]).includes(i));
     if(!list.length)ppl.innerHTML='<span class="fine">ยังไม่มีรายชื่อ</span>';
-    list.forEach(u=>{const s=document.createElement("span");s.className="person";s.style.padding="2px 10px";s.textContent=(u.name||u.username)+(u.username===me()?" (คุณ)":"");ppl.append(s)});
+    list.forEach(u=>{const s=document.createElement("span");s.className="person";s.textContent=(u.name||u.username)+(u.username===me()?" (คุณ)":"");ppl.append(s)});
     $("tiers").append(d);
   });
   const ab=$("adminBox");ab.hidden=!meU.admin;
@@ -856,7 +1058,7 @@ function fillUserForm(u){
   $("uf-pin").value="";$("uf-pinlbl").textContent=u?"ตั้ง PIN ใหม่ (เว้นว่างถ้าไม่เปลี่ยน)":"PIN เริ่มต้น 6 หลัก (ผู้ใช้ต้องเปลี่ยนเมื่อเข้าครั้งแรก)";
   $("uf-title").textContent=u?"แก้ไขผู้ใช้ "+u.username:"เพิ่มผู้ใช้ใหม่";msg($("ufMsg"),"");
 }
-$("userTable").addEventListener("click",e=>{const b=e.target.closest("[data-edit]");if(!b)return;fillUserForm((adminList||[]).find(u=>u.username===b.dataset.edit));$("userForm").scrollIntoView({behavior:"smooth",block:"center"})});
+$("userTable").addEventListener("click",e=>{const b=e.target.closest("[data-edit]");if(!b)return;fillUserForm((adminList||[]).find(u=>u.username===b.dataset.edit));scrollToEl($("userForm"))});
 $("uf-new").addEventListener("click",()=>fillUserForm(null));
 $("uf-save").addEventListener("click",async()=>{
   const isNew=!$("uf-username").readOnly;const pin=$("uf-pin").value.trim();
@@ -873,62 +1075,66 @@ $("uf-save").addEventListener("click",async()=>{
   b.disabled=false;
 });
 
-/* ---------- แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์: print + Word ---------- */
+/* ---------- printable forms: model (blocks) → print HTML / Word ---------- */
 const thLong=iso=>{if(!iso)return"";const d=new Date(String(iso).length===10?iso+"T00:00:00":iso);return isNaN(d)?"":d.toLocaleDateString("th-TH",{day:"numeric",month:"long",year:"numeric"})};
 const pn=(P,id)=>(P[id]&&P[id].name)||"";
 const V=(x,w)=>({v:(x===""||x==null)?null:String(x),w:w||6});
 const BOX=b=>b?"☑":"☐";
-async function reqModel(c){
-  const P=await names([c.submittedBy,...(c.history||[]).map(h=>h.by)]);
-  const f=c.form||{};
-  const vg=VG.filter((_,i)=>f["vg"+i]);
+const T=(b,t)=>BOX(b)+" "+t;
+const metaOf=(c,name)=>c.id?`พิมพ์จากระบบเสนออนุมัติออนไลน์ เลขรายการ ${code(c)} สถานะ ${STL[c.status]||c.status} ณ ${thDT(new Date().toISOString())} · ชื่อในช่องลงชื่อเป็นผลที่บันทึกในระบบ ให้ลงลายมือชื่อกำกับ`:`ร่างจากแบบประเมิน ณ ${thDT(new Date().toISOString())} ยังไม่ได้ส่งเสนออนุมัติในระบบ`;
+const fileHN=c=>String(c.hn||"").replace(/[^\w-]/g,"");
+
+/* แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์ (ฉบับ 2569) */
+function reqModel(c){
+  const P=users,f=c.form||{};
   const rs=RIGHTS.map((_,i)=>f["rt"+i]||"");
-  const anyDone=rs.includes("done"),allChecked=rs.every(v=>v==="na"||v==="done");
+  const allChecked=rs.every(v=>v==="na"||v==="done");
   const doneList=RIGHTS.filter((_,i)=>rs[i]==="done").map(r=>r.split(" (")[0]);
-  const lvl=c.level,medOwe=Math.max(0,(c.cost||0)-(c.covered||0)),oth=c.other||0;
+  const lvl=+c.level,medOwe=Math.max(0,(c.cost||0)-(c.covered||0));
+  const trn=c.transport!=null?+c.transport||0:+c.other||0,eqp=c.transport!=null?+c.equip||0:0;
   const appr=c.status==="approved"&&c.decision&&c.decision.amount!=null;
-  const amt=Math.max(0,Math.min(appr?+c.decision.amount:(+c.amount||0),medOwe+oth));
-  const aMed=Math.min(amt,medOwe),aOth=Math.min(amt-aMed,oth);
+  let left=Math.max(0,Math.min(appr?+c.decision.amount:(+c.amount||0),medOwe+trn+eqp));
+  const take=x=>{const a=Math.min(left,x);left-=a;return a};
+  const aMed=take(medOwe),aTrn=take(trn),aEqp=take(eqp);
   const row=(label,tot,cov,owe,a)=>[label,tot,cov,owe-a,lvl>=2?a:null,lvl===1?a:null];
-  const rows=[row("ค่ารักษาพยาบาล",c.cost||0,c.covered||0,medOwe,aMed),row("ค่าพาหนะ/อุปกรณ์",oth,0,oth,aOth)];
+  const rows=[row("ค่ารักษาพยาบาล",c.cost||0,c.covered||0,medOwe,aMed),row("ค่าพาหนะ",trn,0,trn,aTrn),row("ค่าอุปกรณ์/อื่น ๆ"+(f.equipName?" ("+f.equipName+")":""),eqp,0,eqp,aEqp)];
   rows.push(["รวม",...[1,2,3,4,5].map(k=>rows.some(r=>r[k]!=null)?rows.reduce((s,r)=>s+(r[k]||0),0):null)]);
   const ap=[0,1,2,3].map(i=>{
     const hs=(c.history||[]).filter(h=>h.tier===i&&["approve","escalate","reject"].includes(h.action));
     const h=hs[hs.length-1];
     if(h)return{res:{approve:"อนุมัติ",escalate:"เสนอ",reject:"ไม่อนุมัติ"}[h.action],name:pn(P,h.by),date:thDate(h.at),note:h.note||"",amount:h.action==="approve"?h.amount:null};
-    if(i===0&&(c.requestedTier??c.tier)>=1)return{res:"เสนอ",name:pn(P,c.submittedBy),date:thDate(c.submittedAt),note:""};
+    if(i===0&&c.id&&(c.requestedTier??c.tier)>=1)return{res:"เสนอ",name:pn(P,c.submittedBy),date:thDate(c.submittedAt),note:""};
     return null;
   });
-  const T=(b,t)=>BOX(b)+" "+t;
-  const d=c.d870;
+  const d=c.d870,rsSt=f.rightsStatus||"";
   const B=[];
   B.push({k:"title",r:["แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์"]});
   B.push({k:"p",a:"c",sm:1,r:["ใช้เพิ่มเติมจากแบบบันทึกงานสังคมสงเคราะห์ เฉพาะรายที่อนุเคราะห์หรือค้างชำระ (แนบแบบบันทึกฯ ประกอบ)"]});
   B.push({k:"p",a:"r",before:1,r:["วันที่ ",V(thLong(c.assessedOn),9)]});
   B.push({k:"p",r:[{b:"เรียน"},"   ผู้อำนวยการโรงพยาบาลสมเด็จพระสังฆราช (อมฺพรมหาเถร)"]});
-  B.push({k:"p",first:1,r:["ผู้ป่วยชื่อ ",V(null,14)," อายุ ",V(null,3)," ปี สัญชาติ ",V(null,7)]});
-  B.push({k:"p",r:["ที่อยู่ปัจจุบัน ",V(null,32)]});
-  B.push({k:"p",r:["เข้ารับบริการเมื่อวันที่ ",V(null,5),"  ",T(/OPD/.test(c.ptype),"OPD")," ",T(/IPD/.test(c.ptype),"IPD")," ",T(/ER/.test(c.ptype),"ER"),"  แผนก/หอผู้ป่วย ",V(null,5)]});
-  B.push({k:"p",r:["H.N. ",V(c.hn,6)," A.N. ",V(c.an,6)," ส่งปรึกษาวันที่ ",V(null,6)," การวินิจฉัยโรค ",V(null,5)]});
-  B.push({k:"p",r:["กลุ่มเปราะบาง (ประกาศฯ ฉบับที่ 2 พ.ศ. 2568)  ",T(!vg.length,"ไม่ใช่"),"  ",T(vg.length,"ใช่")," ระบุ ",V(vg.join(", "),16)]});
+  B.push({k:"p",first:1,r:["ผู้ป่วยชื่อ ",V(null,13)," อายุ ",V(null,3)," ปี ที่อยู่ปัจจุบัน ",V(null,14)]});
+  B.push({k:"p",r:["H.N. ",V(c.hn,6)," A.N. ",V(c.an,6)," เข้ารับบริการเมื่อวันที่ ",V(thLong(f.admitDt),9)]});
+  B.push({k:"p",r:["ส่งปรึกษาวันที่ ",V(thLong(f.consultDt),9)," การวินิจฉัยโรค ",V(null,17)]});
   B.push({k:"h",r:["1. การตรวจสอบสิทธิและแหล่งทุน"]});
-  B.push({k:"p",ind:1,r:["สิทธิการรักษา ",T(!anyDone,"ไม่มีสิทธิ"),"  ",T(anyDone,"สิทธิไม่ครอบคลุม"),"  ",T(false,"ใช้สิทธิไม่ได้ (นอกเขต/ผิดขั้นตอน)"),"  ",T(false,"อื่น ๆ")," ",V(null,3)]});
-  B.push({k:"p",ind:1,r:[T(allChecked,"ตรวจสิทธิและแหล่งทุนครบ 7 แหล่งแล้ว ไม่มีรายการรอตั้งเบิก"),"   แหล่งทุนที่ประสานแล้ว ",V(doneList.join(", ")||"-",9)]});
+  B.push({k:"p",ind:1,r:["สิทธิการรักษา ",T(rsSt==="ไม่มีสิทธิ","ไม่มีสิทธิ"),"  ",T(rsSt==="สิทธิไม่ครอบคลุม","สิทธิไม่ครอบคลุม"),"  ",T(/ใช้สิทธิไม่ได้/.test(rsSt),"ใช้สิทธิไม่ได้ (นอกเขต/ผิดขั้นตอน)"),"  ",T(rsSt==="อื่น ๆ","อื่น ๆ")," ",V(f.rightsName,5)]});
+  B.push({k:"p",ind:1,r:[T(allChecked,"ตรวจสิทธิและแหล่งทุนครบ 7 แหล่งแล้ว ไม่มีรายการรอตั้งเบิก"),"   แหล่งทุนที่ประสานแล้ว ",V(doneList.join(", ")||(allChecked?"-":null),9)]});
   B.push({k:"h",r:["2. สรุปการประเมินและวินิจฉัยทางสังคม (จากแบบบันทึกงานสังคมสงเคราะห์)"]});
   B.push({k:"p",ind:1,r:["สมาชิกครัวเรือน ",V(c.members,2)," คน รายได้รวม ",V(c.income==null?null:fmt(c.income),4)," บาท/เดือน รายได้ต่อหัว ",V(c.pc==null?null:fmt(c.pc),4)," บาท/คน/เดือน"]});
-  B.push({k:"p",ind:1,r:[T(c.pc!=null&&c.pc<PL,"ต่ำกว่าเส้นความยากจน (3,078 บาท/คน/เดือน)"),"   ",T(!!f.crit2537,"เข้าเกณฑ์ระเบียบสำนักนายกรัฐมนตรี พ.ศ. 2537")]});
-  B.push({k:"p",ind:1,r:["คะแนนปัญหาการเงิน (d870) ระดับ ",V(d,2),"  คะแนนรายได้ครอบครัว ",V(c.fra,2),"  ระดับการติดตาม ",T(d!=null&&d>=3,"แดง")," ",T(d===2,"เหลือง")," ",T(d!=null&&d<2,"เขียว")]});
+  const a2537=c.members&&c.income!=null?(+c.members===1?c.income<=2000:c.income<=2800):false;
+  B.push({k:"p",ind:1,r:[T(c.pc!=null&&c.pc<PL,"ต่ำกว่าเส้นความยากจน (3,078 บาท/คน/เดือน)"),"   ",T(a2537||!!f.crit2537,"เข้าเกณฑ์ระเบียบสำนักนายกรัฐมนตรี พ.ศ. 2537")]});
+  B.push({k:"p",ind:1,r:["คะแนนปัญหาการเงิน (d870) ระดับ ",V(d,2),"  คะแนนรายได้ครอบครัว ",V(c.fra,2)]});
   B.push({k:"p",ind:1,r:["สรุปปัญหาทางสังคม ",V(c.swNote,28)]});
   B.push({k:"h",r:["3. ความเห็นนักสังคมสงเคราะห์ (ตามตารางตัดสินการช่วยเหลือ)"]});
   B.push({k:"p",ind:1,r:[T(lvl===3,"อนุเคราะห์ทั้งหมด"),"   ",T(lvl===2,"อนุเคราะห์บางส่วน"),"   ",T(lvl===1,"ส่งทำค้างชำระ (เงื่อนไขครบ 5 ข้อ แนบหนังสือรับสภาพหนี้)")]});
-  B.push({k:"p",ind:1,r:["กรณีค้างชำระ ผ่อนงวดละ ",V(lvl===1&&c.inst?fmt(c.inst):null,4)," บาท จำนวน ",V(lvl===1?c.nInst:null,2)," งวด เริ่มชำระ ",V(null,6)]});
+  B.push({k:"p",ind:1,r:["กรณีค้างชำระ ผ่อนงวดละ ",V(lvl===1&&c.inst?fmt(c.inst):null,4)," บาท จำนวน ",V(lvl===1?c.nInst:null,2)," งวด เริ่มชำระ ",V(lvl===1?thLong(f.instStart):null,7)]});
   B.push({k:"h",r:["4. รายการค่าใช้จ่ายที่ขออนุเคราะห์ (บาท)"]});
   B.push({k:"t",w:[2500,1520,1520,1260,1400,1402],num:[1,2,3,4,5],rows:[["รายการ","ค่าใช้จ่ายทั้งหมด","สิทธิ/กองทุนจ่าย","ผู้ป่วยชำระ","ขออนุเคราะห์","ค้างชำระ"],...rows.map(r=>r.map((x,i)=>i===0?x:(x==null?"":fmt(x))))],boldLast:1});
   if(appr&&+c.decision.amount!==+c.amount)B.push({k:"p",sm:1,r:[`ยอดในตารางเป็นยอดที่อนุมัติ (${fmt(c.decision.amount)} บาท) ยอดที่เสนอเดิม ${fmt(c.amount)} บาท`]});
   B.push({k:"p",first:1,before:1,r:["จึงเรียนมาเพื่อโปรดพิจารณา"]});
   B.push({k:"p",a:"r",before:2,r:["ลงชื่อ ",V(null,12)," ผู้ประเมิน"]});
-  B.push({k:"p",a:"r",r:["(",V(pn(P,c.submittedBy),12),")"]});
-  B.push({k:"p",a:"r",r:["นักสังคมสงเคราะห์   วันที่ ",V(thLong(c.submittedAt),8)]});
+  B.push({k:"p",a:"r",r:["(",V(pn(P,c.submittedBy)||null,12),")"]});
+  B.push({k:"p",a:"r",r:["นักสังคมสงเคราะห์   วันที่ ",V(c.submittedAt?thLong(c.submittedAt):null,8)]});
+  B.push({k:"pb"});
   B.push({k:"h",r:["ความเห็นแพทย์ผู้รักษา"]});
   B.push({k:"p",ind:1,r:[T(false,"ผู้ป่วยมีปัญหาเศรษฐกิจ ควรให้การอนุเคราะห์"),"   ",T(false,"อื่น ๆ")," ",V(null,10)]});
   B.push({k:"p",a:"r",before:2,r:["ลงชื่อ ",V(null,12)," แพทย์ผู้รักษา"]});
@@ -940,35 +1146,88 @@ async function reqModel(c){
     ...[0,1,2,3].map(i=>{const a=ap[i];const res=OPTS[i].map(o=>BOX(a&&a.res===o)+" "+o).join("  ")+(a&&a.amount!=null?`\n${fmt(a.amount)} บาท`:"")+(a&&a.note?`\n${a.note}`:"");return[LBL[i],res,a?(a.name||"(บันทึกออนไลน์)"):"",a?a.date:""]})]});
   B.push({k:"p",before:1,r:["อนุมัติ ",T(appr&&lvl>=2,"อนุเคราะห์")," จำนวน ",V(appr&&lvl>=2?fmt(c.decision.amount):null,5)," บาท   ",T(appr&&lvl===1,"ค้างชำระ")," จำนวน ",V(appr&&lvl===1?fmt(c.decision.amount):null,5)," บาท"]});
   const notes=["1. วงเงินอำนาจอนุมัติเป็นไปตามคำสั่งมอบอำนาจของผู้อำนวยการ นับยอดรวมต่อการรับบริการ 1 ครั้ง หรือต่อการนอนโรงพยาบาล 1 ครั้ง ห้ามแยกใบแจ้งหนี้","2. เจ้าหน้าที่การเงิน พิมพ์รายการค่ารักษาพยาบาลพร้อมส่งเอกสารฉบับนี้คืนกลุ่มงานสังคมสงเคราะห์ เพื่อเสนอผู้มีอำนาจอนุมัติตามวงเงิน","3. กรณีค้างชำระ แนบหนังสือรับสภาพหนี้/สัญญาผ่อนชำระที่นิติกรจัดทำ"];
-  const meta=`พิมพ์จากระบบเสนออนุมัติออนไลน์ เลขรายการ ${code(c)} สถานะ ${STL[c.status]||c.status} ณ ${thDT(new Date().toISOString())} · ชื่อในช่องลงชื่อเป็นผลที่บันทึกในระบบ ให้ลงลายมือชื่อกำกับ`;
-  return{B,notes,meta,file:`SW-Request_HN${String(c.hn||"").replace(/[^\w-]/g,"")}_${code(c).slice(1)}`};
+  return{title:"แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์",B,notes,meta:metaOf(c),file:`SW-Request_HN${fileHN(c)}_${c.id?code(c).slice(1):"draft"}`};
+}
+
+/* แบบบันทึกงานสังคมสงเคราะห์ (ฉบับ 2569) */
+function recModel(c,assessor){
+  const f=c.form||{},lvl=c.level==null?null:+c.level,d=c.d870==null?null:+c.d870;
+  const vg=VG.filter((_,i)=>f["vg"+i]);
+  const sev=sevOf(d);
+  const rs=RIGHTS.map((_,i)=>f["rt"+i]||"");
+  const rightsTxt=[f.rightsStatus,f.rightsName].filter(Boolean).join(" ")||RIGHTS.filter((_,i)=>rs[i]==="done").map(r=>r.split(" (")[0]).join(", ");
+  const fuSug=(c.followUp||[]).length>0;
+  const closeSel=[0,1,2].find(i=>f["cl"+i]);
+  const cl=closeSel!=null?closeSel:(d==null?null:(fuSug?2:null));
+  const ptype=c.ptype||f.ptype||"";
+  const B=[];
+  B.push({k:"title",r:["แบบบันทึกงานสังคมสงเคราะห์"]});
+  B.push({k:"p",a:"c",sm:1,r:["ใช้บันทึกทุกรายที่ส่งปรึกษา กรณีอนุเคราะห์หรือค้างชำระ ให้จัดทำแบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์เพิ่มเติม"]});
+  B.push({k:"p",before:1,r:["ชื่อผู้ป่วย ",V(null,14)," อายุ ",V(null,3)," ปี โรค ",V(null,12)]});
+  B.push({k:"p",r:["HN ",V(c.hn,6)," AN ",V(c.an,6),"  ",T(/OPD/.test(ptype),"OPD")," ",T(/IPD/.test(ptype),"IPD")," ",T(/ER/.test(ptype),"ER"),"  แผนก/หอผู้ป่วย ",V(f.ward,7)]});
+  B.push({k:"p",r:["วันที่มาโรงพยาบาล ",V(thLong(f.admitDt),9)," วันกลับ ",V(thLong(f.dcDt),9)]});
+  B.push({k:"p",r:["สิทธิการรักษา ",V(rightsTxt,10)," กลุ่มเปราะบาง ",T(!vg.length&&!!c.form,"ไม่ใช่")," ",T(vg.length>0,"ใช่")," ระบุ ",V(vg.join(", "),9)]});
+  B.push({k:"h",r:["1. ปัญหาและความต้องการ (ประเด็นจากการคัดกรอง)"]});
+  B.push({k:"p",ind:1,r:[PROBS.map((p,i)=>T(!!f["pr"+i],p)).join("   ")]});
+  B.push({k:"h",r:["2. ประวัติครอบครัว (",T(!!f.famTree,"แนบผังครอบครัว"),")"]});
+  B.push({k:"p",ind:1,r:["สมาชิกครัวเรือน ",V(c.members,2)," คน รายได้รวม ",V(c.income==null?null:fmt(c.income),4)," บาท/เดือน รายได้ต่อหัว ",V(c.pc==null?null:fmt(c.pc),4)," บาท/คน/เดือน"]});
+  const ds=f.debtSrc||"";
+  B.push({k:"p",ind:1,r:["หนี้สิน ",V(f.debtAmt?fmt(+f.debtAmt):null,5)," บาท ",T(/ใน/.test(ds),"ในระบบ")," ",T(/นอก/.test(ds),"นอกระบบ"),"   ",T(c.pc!=null&&c.pc<PL,"ต่ำกว่าเส้นความยากจน 3,078 บาท/คน/เดือน")]});
+  B.push({k:"h",r:["3. แหล่งทรัพยากรทางสังคม"]});
+  B.push({k:"p",sm:1,r:["(เครือข่าย หน่วยงาน และบริการทั้งภาครัฐและเอกชน ที่นำมาใช้สนับสนุน ช่วยเหลือ ฟื้นฟู และปกป้องสิทธิผู้ป่วยและครอบครัว เพื่อให้ใช้ชีวิตในสังคมได้อย่างปกติสุข)"]});
+  B.push({k:"t",w:[3400,900,900,4402],cc:[1,2],rows:[["แหล่งทรัพยากร","มีอยู่","ประสาน","หน่วยงาน/บุคคล และผล"],...RES.map((r,i)=>[r,BOX(!!f["rsH"+i]),BOX(!!f["rsC"+i]),f["rsN"+i]||""])]});
+  B.push({k:"h",r:["4. การประเมินปัญหาทางสังคม (S.D.M.A./บัญชีปัญหาทางสังคม)"]});
+  B.push({k:"p",ind:1,r:["ปัญหาตามบัญชีปัญหาทางสังคม (รหัส/ระดับ 0–4) ",V(f.sdma,16)]});
+  B.push({k:"p",ind:1,r:["ปัญหาการเงิน (d870) ระดับ ",V(d,2)," คะแนนรายได้ครอบครัว ",V(c.fra,2)," ระดับความรุนแรง ",T(sev==="แดง","แดง")," ",T(sev==="เหลือง","เหลือง")," ",T(sev==="เขียว","เขียว")]});
+  B.push({k:"pb"});
+  B.push({k:"h",r:["5. การวางแผนการบำบัดและช่วยเหลือ"]});
+  B.push({k:"p",ind:1,r:["ค่าใช้จ่าย ",T(lvl===0,"ไม่มีปัญหา")," ",T(lvl===3,"อนุเคราะห์ทั้งหมด")," ",T(lvl===2,"อนุเคราะห์บางส่วน")," ",T(lvl===1,"ส่งทำค้างชำระ")," (",T(lvl>=1,"จัดทำแบบขออนุเคราะห์ฯ เพิ่มเติม"),")"]});
+  B.push({k:"p",ind:1,r:["แผนระยะสั้น ",V(f.planS,28)]});
+  B.push({k:"p",ind:1,r:["แผนระยะยาว ",V(f.planL,28)]});
+  B.push({k:"h",r:["6. การบำบัดทางสังคม"]});
+  B.push({k:"p",ind:1,r:[TX.slice(0,4).map((t,i)=>T(!!f["tx"+i],t)).join("  ")]});
+  B.push({k:"p",ind:1,r:[TX.slice(4,6).map((t,i)=>T(!!f["tx"+(i+4)],t)).join("  ")+"  "+T(!!f.tx6,"ส่งต่อหน่วยงาน")+" ระบุ ",V(f.referTo,10)]});
+  B.push({k:"h",r:["7. ประเมินผลการบำบัดและการติดตาม"]});
+  B.push({k:"p",ind:1,r:["ผลการบำบัด ",EV.map((t,i)=>T(!!f["ev"+i],t)).join("  ")]});
+  B.push({k:"p",ind:1,r:["ผลต่อผู้ป่วยและครอบครัว ",V(f.effect,22)]});
+  B.push({k:"p",ind:1,r:[T(cl===0,"ยุติบริการ"),"  ",T(cl===1,"ส่งต่อหน่วยงานอื่น")," ระบุ ",V(f.closeTo,8),"  ",T(cl===2,"ติดตามต่อ (เฉพาะรายที่จำเป็น)")]});
+  B.push({k:"p",ind:1,r:["การติดตาม (ถ้ามี): วันที่ ",V(thLong(f.fuDate),7)," วิธี ",FUHOW.map((t,i)=>T(!!f["fh"+i],t)).join(" ")," ผล ",V(f.fuRes,8)]});
+  B.push({k:"h",r:["8. สรุปความคิดเห็นของนักสังคมสงเคราะห์"]});
+  B.push({k:"p",ind:1,r:[V(c.swNote,34)]});
+  if(c.result)B.push({k:"p",ind:1,sm:1,r:[`ผลตามเกณฑ์: ${c.result}${c.resultSub?" – "+c.resultSub:""}${c.amount?` · ยอดที่เสนอ ${fmt(c.amount)} บาท`:""}`]});
+  B.push({k:"p",a:"r",before:2,r:["ลงชื่อ ",V(null,12)]});
+  B.push({k:"p",a:"r",r:["(",V(assessor||null,12),")"]});
+  B.push({k:"p",a:"r",r:["วันที่ ",V(thLong(c.assessedOn),9)]});
+  return{title:"แบบบันทึกงานสังคมสงเคราะห์",B,notes:[],meta:metaOf(c),file:`SW-Record_HN${fileHN(c)}_${c.id?code(c).slice(1):"draft"}`};
 }
 
 /* HTML (print) */
 function runsHTML(r){return r.map(x=>typeof x==="string"?esc(x):x.b?`<b>${esc(x.b)}</b>`:x.v!=null?`<span class="fv">${esc(x.v)}</span>`:`<span class="dl" style="width:${x.w}em"></span>`).join("")}
-function reqHTML(M){
+function docHTML(M){
   let h="";
   for(const b of M.B){
     if(b.k==="title")h+=`<h1>${runsHTML(b.r)}</h1>`;
     else if(b.k==="h")h+=`<h2>${runsHTML(b.r)}</h2>`;
+    else if(b.k==="pb")h+=`<div class="pb"></div>`;
     else if(b.k==="p")h+=`<p class="${[b.a==="c"?"c":b.a==="r"?"r":"",b.sm?"sm":"",b.ind?"ind":"",b.first?"first":"",b.before?"bf"+b.before:""].join(" ")}">${runsHTML(b.r)}</p>`;
     else if(b.k==="t"){const tot=b.w.reduce((s,x)=>s+x,0);
-      h+=`<table><colgroup>${b.w.map(w=>`<col style="width:${(w/tot*100).toFixed(1)}%">`).join("")}</colgroup>${b.rows.map((r,ri)=>`<tr>${r.map((c,ci)=>{const tag=ri===0?"th":"td";const cls=[(b.num||[]).includes(ci)&&ri>0?"n":"",b.boldLast&&ri===b.rows.length-1?"bold":""].join(" ");return`<${tag} class="${cls}">${esc(c).replace(/\n/g,"<br>")}</${tag}>`}).join("")}</tr>`).join("")}</table>`;}
+      h+=`<table><colgroup>${b.w.map(w=>`<col style="width:${(w/tot*100).toFixed(1)}%">`).join("")}</colgroup>${b.rows.map((r,ri)=>`<tr>${r.map((c,ci)=>{const tag=ri===0?"th":"td";const cls=[(b.num||[]).includes(ci)&&ri>0?"n":"",(b.cc||[]).includes(ci)&&ri>0?"cc":"",b.boldLast&&ri===b.rows.length-1?"bold":""].join(" ");return`<${tag} class="${cls}">${esc(c).replace(/\n/g,"<br>")}</${tag}>`}).join("")}</tr>`).join("")}</table>`;}
   }
-  h+=`<div class="notes"><b>หมายเหตุ :</b>${M.notes.map(n=>`<div>${esc(n)}</div>`).join("")}</div><p class="meta">${esc(M.meta)}</p>`;
+  if(M.notes.length)h+=`<div class="notes"><b>หมายเหตุ :</b>${M.notes.map(n=>`<div>${esc(n)}</div>`).join("")}</div>`;
+  h+=`<p class="meta">${esc(M.meta)}</p>`;
   return h;
 }
 function hasTHSarabun(){try{const x=document.createElement("canvas").getContext("2d");const s="กขคงabcABC123";x.font="40px monospace";const a=x.measureText(s).width;x.font='40px "TH Sarabun New",monospace';const b=x.measureText(s).width;x.font='40px "THSarabunNew",monospace';const c2=x.measureText(s).width;return b!==a||c2!==a}catch(e){return false}}
-async function printReq(c){
-  const M=await reqModel(c);
+function printHTML(html){
   const pa=$("printArea");
-  pa.innerHTML=reqHTML(M);
+  pa.innerHTML=html;
   pa.classList.toggle("ths",hasTHSarabun());
   document.body.classList.add("printing");
   const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
   window.addEventListener("afterprint",done);
   setTimeout(()=>{try{window.print()}catch(e){} setTimeout(done,1500)},60);
 }
+function printDoc(M){printHTML(docHTML(M))}
 
 /* Word (.docx) */
 let docxLib=null;
@@ -978,7 +1237,7 @@ function loadDocx(){
   docxLib=new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/docx@9.5.1/dist/index.iife.js";s.onload=()=>window.docx?res(window.docx):rej(new Error("docx"));s.onerror=()=>{docxLib=null;rej(new Error("load"))};document.head.append(s)});
   return docxLib;
 }
-async function reqDocx(M){
+async function docDocx(M){
   const D=await loadDocx();
   const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,BorderStyle,ShadingType,AlignmentType,Footer,VerticalAlign}=D;
   const F="TH Sarabun New",CW=11906-1152*2;
@@ -989,30 +1248,34 @@ async function reqDocx(M){
     return[new TextRun({text:".".repeat(Math.max(4,Math.round(x.w*2.3))),...o})];
   });
   const bd={style:BorderStyle.SINGLE,size:4,color:"000000"},borders={top:bd,bottom:bd,left:bd,right:bd};
-  const kids=[];
+  const kids=[];let brk=false;
   for(const b of M.B){
+    if(b.k==="pb"){brk=true;continue}
+    const pb=brk?{pageBreakBefore:true}:{};
     if(b.k==="title")kids.push(new Paragraph({alignment:AlignmentType.CENTER,children:runs(b.r,{bold:true,size:44})}));
-    else if(b.k==="h")kids.push(new Paragraph({keepNext:true,spacing:{before:140,after:20},children:runs(b.r,{bold:true})}));
-    else if(b.k==="p")kids.push(new Paragraph({alignment:b.a==="c"?AlignmentType.CENTER:b.a==="r"?AlignmentType.RIGHT:AlignmentType.LEFT,
+    else if(b.k==="h")kids.push(new Paragraph({...pb,keepNext:true,spacing:{before:140,after:20},children:runs(b.r,{bold:true})}));
+    else if(b.k==="p")kids.push(new Paragraph({...pb,alignment:b.a==="c"?AlignmentType.CENTER:b.a==="r"?AlignmentType.RIGHT:AlignmentType.LEFT,
       indent:b.ind?{left:284}:b.first?{firstLine:567}:undefined,spacing:b.before?{before:b.before*120}:undefined,children:runs(b.r,b.sm?{size:28}:{})}));
     else if(b.k==="t"){
+      if(brk)kids.push(new Paragraph({pageBreakBefore:true,children:[]}));
       const tot=b.w.reduce((s,x)=>s+x,0),ws=b.w.map(w=>Math.round(w/tot*CW));
       kids.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:ws,rows:b.rows.map((r,ri)=>new TableRow({cantSplit:true,tableHeader:ri===0,children:r.map((c,ci)=>new TableCell({borders,width:{size:ws[ci],type:WidthType.DXA},margins:{top:20,bottom:20,left:80,right:80},verticalAlign:VerticalAlign.CENTER,
         shading:ri===0?{fill:"E8E8E8",type:ShadingType.CLEAR,color:"auto"}:undefined,
-        children:String(c).split("\n").map(line=>new Paragraph({alignment:ri===0?AlignmentType.CENTER:((b.num||[]).includes(ci)?AlignmentType.RIGHT:AlignmentType.LEFT),children:[new TextRun({text:line,bold:ri===0||(b.boldLast&&ri===b.rows.length-1)})]}))}))}))}));
+        children:String(c).split("\n").map(line=>new Paragraph({alignment:ri===0||(b.cc||[]).includes(ci)?AlignmentType.CENTER:((b.num||[]).includes(ci)?AlignmentType.RIGHT:AlignmentType.LEFT),children:[new TextRun({text:line,bold:ri===0||(b.boldLast&&ri===b.rows.length-1)})]}))}))}))}));
     }
+    brk=false;
   }
   kids.push(new Paragraph({spacing:{before:160},children:[new TextRun({text:M.meta,size:22,color:"555555"})]}));
   const fn=(t,first)=>new Paragraph({indent:{left:851,hanging:567},children:[new TextRun({text:(first?"หมายเหตุ : ":"")+t,size:24})]});
-  const doc=new Document({title:"แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์",styles:{default:{document:{run:{font:F,size:32}}}},
-    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1152,bottom:1134,left:1152,footer:567}}},
-      footers:{default:new Footer({children:M.notes.map((n,i)=>fn(n,i===0))})},children:kids}]});
+  const sec={properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1152,bottom:1134,left:1152,footer:567}}},children:kids};
+  if(M.notes.length)sec.footers={default:new Footer({children:M.notes.map((n,i)=>fn(n,i===0))})};
+  const doc=new Document({title:M.title,styles:{default:{document:{run:{font:F,size:32}}}},sections:[sec]});
   return Packer.toBlob(doc);
 }
-async function downloadReq(c,msgEl,btn){
+async function downloadDoc(M,msgEl,btn){
   btn.disabled=true;msg(msgEl,"กำลังสร้างไฟล์ Word…","");
   try{
-    const M=await reqModel(c);const blob=await reqDocx(M);
+    const blob=await docDocx(M);
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=M.file+".docx";document.body.append(a);a.click();
     setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
     msg(msgEl,"ดาวน์โหลดไฟล์แล้ว","ok");
