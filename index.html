@@ -310,6 +310,19 @@ body[data-mode="doctor"] .wrap,body[data-mode="doctor"] #auth,body[data-mode="do
 }
 @media print{body{background:#fff;color:#000}.example,.btns,.bar,.tabs,.filters,.decide,.qlist,.stats,.secnav{display:none!important}.grid,.qgrid{grid-template-columns:1fr}aside{position:static}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* confirm decision + PIN */
+.cfm-bg{position:fixed;inset:0;z-index:60;background:rgba(18,16,14,.55);display:grid;place-items:center;padding:16px}
+.cfm{background:var(--paper);color:var(--ink);border-radius:14px;width:100%;max-width:540px;max-height:calc(100vh - 32px);overflow:auto;padding:20px 20px 18px;display:grid;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.28)}
+.cfm h2{font-size:20px;margin:0}
+.cfm .act{display:inline-block;font-weight:700;font-size:18px;padding:3px 12px;border-radius:999px}
+.cfm .act.approve{background:var(--full-soft);color:var(--full)}.cfm .act.reject{background:var(--warn-soft);color:var(--warn)}
+.cfm .act.return{background:var(--debt-soft);color:var(--debt)}.cfm .act.escalate{background:var(--accent-soft);color:var(--accent)}
+.cfm dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;margin:0;font-size:15.5px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--soft)}
+.cfm dt{color:var(--muted)}.cfm dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.cfm .big{font-size:19px;font-weight:700}
+.cfm .pinrow input{font-size:22px;letter-spacing:.35em;text-align:center;max-width:220px}
+.cfm .btns{justify-content:flex-end}
+@media (max-width:560px){.cfm{padding:16px}.cfm .btns button{flex:1}}
 </style>
 </head>
 <body>
@@ -898,6 +911,7 @@ function setUsers(list){users={};(list||[]).forEach(u=>users[u.username]=u);}
 
 /* ---------- demo backend (mirrors apps-script/Code.gs, stored in localStorage) ---------- */
 const DKEY="sw-demo-db-v3";
+const DEMO_PIN="246810";
 const LIMITS=[3000,20000,50000,Infinity];
 let DB=null;
 const rid=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,"0")).join("");
@@ -991,6 +1005,7 @@ function demoApi(action,req){
         c.doctor={status:"paper"};c.status="pending";push(c,{at:now,by:user.username,action:"doctorSkip",tier:c.tier,note:"แพทย์ลงความเห็นในแบบฟอร์มกระดาษ"});dbSave();return{ok:true}}
       case "getSig":return{ok:true,png:db.sigs[req.id]||null};
       case "decide":{
+        if(String(req.pin||"")!==DEMO_PIN)return fail("bad_pin","PIN ไม่ถูกต้อง (โหมดทดลองใช้ PIN "+DEMO_PIN+")");
         if(role==="finance"&&!user.admin)return fail("forbidden","งานการเงินบันทึกผลการพิจารณาไม่ได้");
         const c=findC(req.id),a=req.decision,note=String(req.note||"");
         if(!c)return fail("not_found","ไม่พบรายการ");
@@ -1283,9 +1298,63 @@ async function decide(c,action,amount,note){
     if(amount>TIERS[myMax()][0]){msg(m,`ยอด ${fmt(amount)} บาท เกินวงเงินของคุณ ให้เลือก "เสนอระดับถัดไป"`,"err");return}
     if(c.owe!=null&&amount>+c.owe){msg(m,`ยอดอนุมัติเกินยอดที่ผู้ป่วยรับผิดชอบ (${fmt(c.owe)} บาท)`,"err");return}
   }
-  if(btn)btn.disabled=true;msg(m,"กำลังบันทึก…");
-  try{await api("decide",{id:c.id,tier:c.tier,decision:action,amount,note});detailSig=null;await refresh(true);}
-  catch(e){msg(m,ERR(e),"err");if(btn)btn.disabled=false;if(e&&e.error==="conflict")refresh(true);}
+  msg(m,"");
+  confirmDecide(c,action,amount,note);
+}
+/* ยืนยันข้อมูลและใส่ PIN อีกครั้งก่อนบันทึกผลการพิจารณา (ระบบตรวจ PIN ที่ฝั่ง Apps Script) */
+const ACT_TH={approve:"อนุมัติ",escalate:"เสนอระดับถัดไป",return:"ส่งกลับแก้ไข",reject:"ไม่อนุมัติ"};
+function confirmDecide(c,action,amount,note){
+  const prev=document.activeElement;
+  const bg=document.createElement("div");bg.className="cfm-bg";
+  const sameAmt=action==="approve"&&Math.round(+amount)===Math.round(+c.amount);
+  const row=(k,v)=>`<dt>${k}</dt><dd>${v}</dd>`;
+  bg.innerHTML=`<div class="cfm" role="dialog" aria-modal="true" aria-labelledby="cfmT">
+    <h2 id="cfmT">ยืนยันผลการพิจารณา</h2>
+    <p class="fine" style="margin:0">ตรวจสอบข้อมูลให้ถูกต้อง บันทึกแล้วแก้ไขไม่ได้ ระบบบันทึกชื่อผู้พิจารณาและเวลาไว้เป็นหลักฐาน</p>
+    <dl>
+      ${row("HN / AN",`<b>${esc(c.hn||"-")}</b>${c.an?" / "+esc(c.an):""}`)}
+      ${row("เลขรายการ",esc(code(c)))}
+      ${row("ผลตามเกณฑ์",`${esc(c.result||"-")} · เสนอ ${fmt(c.amount)} บาท`)}
+      ${row("ผลการพิจารณา",`<span class="act ${action}">${ACT_TH[action]}</span>`)}
+      ${action==="approve"?row("ยอดที่อนุมัติ",`<span class="big">${fmt(amount)} บาท</span>${sameAmt?"":` <span class="fine">(ต่างจากยอดที่เสนอ ${fmt(c.amount)} บาท)</span>`}`):""}
+      ${action==="escalate"?row("เสนอต่อ",esc(TSHORT[Math.min(3,c.tier+1)])):""}
+      ${row("ความเห็น/เงื่อนไข",note?esc(note):"-")}
+      ${row("ผู้พิจารณา",`${esc(meU.name||meU.username)} · ${esc(TSHORT[Math.max(0,myMax())])}`)}
+    </dl>
+    <label class="chk"><input type="checkbox" id="cfmOk">ข้าพเจ้าตรวจสอบข้อมูลข้างต้นแล้ว และยืนยันผลการพิจารณา</label>
+    <label class="f pinrow">ใส่ PIN 6 หลักของท่านอีกครั้งเพื่อยืนยัน${DEMO?` <span class="fine">(โหมดทดลอง: ${DEMO_PIN})</span>`:""}
+      <input type="password" id="cfmPin" inputmode="numeric" maxlength="6" autocomplete="off" aria-describedby="cfmMsg"></label>
+    <div class="msg" id="cfmMsg" role="alert"></div>
+    <div class="btns"><button type="button" class="ghost" id="cfmNo">ยกเลิก</button><button type="button" id="cfmGo">ยืนยันและบันทึกผล</button></div>
+  </div>`;
+  document.body.append(bg);document.body.style.overflow="hidden";
+  const pin=bg.querySelector("#cfmPin"),go=bg.querySelector("#cfmGo"),m=bg.querySelector("#cfmMsg"),ok=bg.querySelector("#cfmOk");
+  let busy=false;
+  const close=()=>{bg.remove();document.body.style.overflow="";document.removeEventListener("keydown",key);if(prev&&prev.focus)prev.focus();};
+  const key=e=>{if(e.key==="Escape"&&!busy)close();if(e.key==="Tab"){const f=[...bg.querySelectorAll("input,button")].filter(x=>!x.disabled);const i=f.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}};
+  document.addEventListener("keydown",key);
+  bg.addEventListener("click",e=>{if(e.target===bg&&!busy)close();});
+  bg.querySelector("#cfmNo").addEventListener("click",()=>{if(!busy)close();});
+  pin.addEventListener("input",()=>{pin.value=pin.value.replace(/\D/g,"").slice(0,6);});
+  pin.addEventListener("keydown",e=>{if(e.key==="Enter")go.click();});
+  go.addEventListener("click",async()=>{
+    if(busy)return;
+    if(!ok.checked){msg(m,"ติ๊กยืนยันว่าตรวจสอบข้อมูลแล้ว","err");ok.focus();return}
+    if(!/^\d{6}$/.test(pin.value)){msg(m,"ใส่ PIN ตัวเลข 6 หลัก","err");pin.focus();return}
+    busy=true;go.disabled=true;msg(m,"กำลังตรวจสอบ PIN และบันทึก…");
+    try{
+      await api("decide",{id:c.id,tier:c.tier,decision:action,amount,note,pin:pin.value});
+      close();detailSig=null;await refresh(true);
+      msg($("dMsg")||$("pMsg"),`บันทึกผล "${ACT_TH[action]}" แล้ว`,"ok",true);
+    }catch(e){
+      busy=false;go.disabled=false;
+      if(e&&e.error==="bad_pin"){msg(m,ERR(e),"err");pin.value="";pin.focus();return}
+      if(e&&e.error==="locked"){msg(m,ERR(e),"err");return}
+      msg(m,ERR(e),"err");
+      if(e&&e.error==="conflict"){setTimeout(()=>{close();detailSig=null;refresh(true)},1600);}
+    }
+  });
+  setTimeout(()=>pin.focus(),30);
 }
 
 /* ---------- finance ---------- */
