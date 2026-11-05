@@ -266,6 +266,7 @@ body[data-mode="doctor"] .wrap,body[data-mode="doctor"] #auth,body[data-mode="do
 .rf .sig img{display:block;height:15mm;margin:0 auto -3mm}
 .rf table{width:100%;border-collapse:collapse;margin:1.2mm 0;break-inside:avoid}
 .rf th,.rf td{border:.8pt solid #000;padding:.6mm 2mm;vertical-align:middle;text-align:left;line-height:1.3}
+.rf td img.tsig{display:block;max-height:10mm;max-width:100%;margin:0 auto -1mm}.rf td .tsn{text-align:center;font-size:.85em}
 .rf th{background:#ececec;text-align:center;font-weight:700}.rf td.n{text-align:right;font-variant-numeric:tabular-nums}.rf td.bold{font-weight:700}.rf td.cc{text-align:center}
 .rf tr.tot td{font-weight:700;background:#f6f6f6}
 .rf .pb{break-before:page;height:0}
@@ -311,6 +312,10 @@ body[data-mode="doctor"] .wrap,body[data-mode="doctor"] #auth,body[data-mode="do
 @media print{body{background:#fff;color:#000}.example,.btns,.bar,.tabs,.filters,.decide,.qlist,.stats,.secnav{display:none!important}.grid,.qgrid{grid-template-columns:1fr}aside{position:static}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 /* confirm decision + PIN */
+.sigimg{display:block;max-width:min(300px,100%);max-height:100px;background:#fff;border:1px dashed var(--line);border-radius:8px;padding:6px}
+.sigbox{display:grid;gap:12px}.sigbox .two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.sigbox .card{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;align-content:start}
+.cfm .sigrow img{max-height:60px;max-width:220px;background:#fff;border:1px dashed var(--line);border-radius:6px;padding:4px;display:block}
 .cfm-bg{position:fixed;inset:0;z-index:60;background:rgba(18,16,14,.55);display:grid;place-items:center;padding:16px}
 .cfm{background:var(--paper);color:var(--ink);border-radius:14px;width:100%;max-width:540px;max-height:calc(100vh - 32px);overflow:auto;padding:20px 20px 18px;display:grid;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.28)}
 .cfm h2{font-size:20px;margin:0}
@@ -948,10 +953,26 @@ function setUsers(list){users={};(list||[]).forEach(u=>users[u.username]=u);}
 /* ---------- demo backend (mirrors apps-script/Code.gs, stored in localStorage) ---------- */
 const DKEY="sw-demo-db-v3";
 const DEMO_PIN="246810";
+const SIG_MAX=48000;   // ความยาวสูงสุดของภาพลายมือชื่อ (ตรงกับ Code.gs)
 const LIMITS=[3000,20000,50000,Infinity];
 let DB=null;
 const rid=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,"0")).join("");
-function dbLoad(){if(DB)return DB;try{DB=JSON.parse(localStorage.getItem(DKEY)||"null")}catch(e){}if(!DB){DB=seedDemo();dbSave()}return DB}
+function dbLoad(){if(DB)return DB;try{DB=JSON.parse(localStorage.getItem(DKEY)||"null")}catch(e){}if(!DB){DB=seedDemo();dbSave()}if(!DB.usigs){seedDemoSigs(DB);dbSave()}return DB}
+/* ลายมือชื่อสมมติของบัญชีทดลอง (วาดด้วย canvas) และลงนามย้อนหลังในรายการที่พิจารณาแล้ว */
+function demoSigPNG(name){
+  try{const first=String(name).replace(/^(นพ\.|นางสาว|นาง|นาย)/,"").split(/\s+/)[0]||name;
+    const c=document.createElement("canvas");c.width=360;c.height=110;const x=c.getContext("2d");
+    x.translate(20,78);x.transform(1,0,-.28,1,0,0);x.fillStyle="#0d2350";x.font='italic 600 54px "Sarabun","TH Sarabun New",serif';x.fillText(first,6,0);
+    const w=Math.min(300,x.measureText(first).width+30);x.setTransform(1,0,0,1,0,0);x.strokeStyle="#0d2350";x.lineWidth=2.2;x.lineCap="round";
+    x.beginPath();x.moveTo(18,92);x.bezierCurveTo(90,80,w*.7,100,w+30,84);x.stroke();
+    return c.toDataURL("image/png")}catch(e){return null}
+}
+function seedDemoSigs(db){
+  db.usigs={};db.dsigs=db.dsigs||{};
+  db.users.filter(u=>u.role!=="finance"&&!u.admin).forEach(u=>{const png=demoSigPNG(u.name);if(png)db.usigs[u.username]={png,at:new Date().toISOString(),by:u.username}});
+  db.cases.forEach(c=>(c.history||[]).forEach(h=>{if(!["approve","escalate","reject","return"].includes(h.action))return;const us=db.usigs[h.by];if(!us)return;h.signed=true;h.pinVerified=true;
+    const u=db.users.find(x=>x.username===h.by)||{};(db.dsigs[c.id]=db.dsigs[c.id]||[]).push({at:h.at,username:h.by,name:u.name||h.by,action:h.action,tier:h.tier,png:us.png})}));
+}
 function dbSave(){DB.ver=String(Date.now());try{localStorage.setItem(DKEY,JSON.stringify(DB))}catch(e){}}
 function seedDemo(){
   const D=n=>new Date(Date.now()-n*864e5).toISOString();
@@ -994,7 +1015,8 @@ function demoApi(action,req){
     const db=dbLoad(),now=new Date().toISOString();
     const fail=(error,message)=>({ok:false,error,message});
     const findU=n=>db.users.find(u=>u.username===n);
-    const pubU=(u,full)=>{const o={username:u.username,name:u.name,tiers:u.tiers||[],role:u.role||"sw"};if(full){o.admin=!!u.admin;o.active=u.active!==false;o.mustChange=false}return o};
+    db.usigs=db.usigs||{};db.dsigs=db.dsigs||{};
+    const pubU=(u,full)=>{const o={username:u.username,name:u.name,tiers:u.tiers||[],role:u.role||"sw"};if(full){o.admin=!!u.admin;o.active=u.active!==false;o.mustChange=false;o.hasSig=!!db.usigs[u.username]}return o};
     const PUB=["login","doctorView","doctorSubmit"];
     let user=null;
     if(!PUB.includes(action)){user=findU(String(req.token||"").replace(/^demo-/,""));if(!user||user.active===false)return fail("auth","กรุณาเข้าสู่ระบบ");}
@@ -1040,6 +1062,12 @@ function demoApi(action,req){
       case "doctorSkip":{if(!sw)return fail("forbidden","เฉพาะนักสังคมสงเคราะห์");const c=findC(req.id);if(!c||c.status!=="doctor")return fail("conflict","รายการนี้ไม่ได้รอความเห็นแพทย์");
         c.doctor={status:"paper"};c.status="pending";push(c,{at:now,by:user.username,action:"doctorSkip",tier:c.tier,note:"แพทย์ลงความเห็นในแบบฟอร์มกระดาษ"});dbSave();return{ok:true}}
       case "getSig":return{ok:true,png:db.sigs[req.id]||null};
+      case "getUserSig":{const w=String(req.username||user.username).toLowerCase();if(w!==user.username&&!user.admin)return fail("forbidden","เฉพาะผู้ดูแลระบบ");const x=db.usigs[w];return{ok:true,png:x?x.png:null,updatedAt:x?x.at:null}}
+      case "setUserSig":{const w=String(req.username||user.username).toLowerCase();if(w!==user.username&&!user.admin)return fail("forbidden","เฉพาะผู้ดูแลระบบ");
+        const png=req.png?String(req.png):null;if(png&&(!/^data:image\/png;base64,/.test(png)||png.length>SIG_MAX))return fail("invalid","ไฟล์ลายมือชื่อไม่ถูกต้องหรือใหญ่เกินไป");
+        if(String(req.pin||"")!==DEMO_PIN)return fail("bad_pin","PIN ไม่ถูกต้อง (โหมดทดลองใช้ PIN "+DEMO_PIN+")");if(!findU(w))return fail("not_found","ไม่พบผู้ใช้");
+        if(png)db.usigs[w]={png,at:now,by:user.username};else delete db.usigs[w];dbSave();return{ok:true,hasSig:!!png}}
+      case "decisionSigs":return{ok:true,sigs:(db.dsigs[req.id]||[])};
       case "decide":{
         if(String(req.pin||"")!==DEMO_PIN)return fail("bad_pin","PIN ไม่ถูกต้อง (โหมดทดลองใช้ PIN "+DEMO_PIN+")");
         if(role==="finance"&&!user.admin)return fail("forbidden","งานการเงินบันทึกผลการพิจารณาไม่ได้");
@@ -1052,9 +1080,11 @@ function demoApi(action,req){
         if((a==="reject"||a==="return")&&!note)return fail("invalid","ระบุเหตุผลในช่องความเห็น");
         const h={at:now,by:user.username,action:a,tier:c.tier};
         if(a==="approve"){const amt=Math.round(+req.amount);if(!(amt>=0))return fail("invalid","ระบุยอดที่อนุมัติ");if(amt>LIMITS[mx])return fail("forbidden","ยอดเกินวงเงินของคุณ ให้เสนอระดับถัดไป");if(amt>Math.round(+c.owe))return fail("invalid","ยอดอนุมัติเกินยอดที่ผู้ป่วยต้องรับผิดชอบ");h.amount=amt;}
-        if(note)h.note=note;push(c,h);
+        if(note)h.note=note;h.pinVerified=true;
+        const us=db.usigs[user.username];h.signed=!!us;if(us)(db.dsigs[c.id]=db.dsigs[c.id]||[]).push({at:now,username:user.username,name:user.name,action:a,tier:c.tier,png:us.png});
+        push(c,h);
         if(a==="approve"){c.status="approved";c.decision=h}else if(a==="reject"){c.status="rejected";c.decision=h}else if(a==="return")c.status="returned";else if(a==="escalate")c.tier=Math.min(3,c.tier+1);
-        dbSave();return{ok:true,status:c.status,tier:c.tier}}
+        dbSave();return{ok:true,status:c.status,tier:c.tier,signed:h.signed}}
       case "consultLookup":return{ok:true,configured:false,rows:[]};
       case "debtPay":{if(!(role==="finance"||user.admin))return fail("forbidden","เฉพาะงานการเงินบันทึกการชำระ");const c=findC(req.id);const amt=Math.round(+req.amount);if(!c||c.status!=="approved"||+c.level!==1)return fail("conflict","บันทึกได้เฉพาะรายค้างชำระที่อนุมัติแล้ว");
         const d=c.debt=c.debt||{payments:[],follows:[]};const bal=Math.max(0,(+c.decision.amount||0)-d.payments.reduce((t,p)=>t+p.amount,0));if(!(amt>0)||amt>bal)return fail("invalid","ยอดชำระไม่ถูกต้อง (คงเหลือ "+bal+" บาท)");
@@ -1095,11 +1125,76 @@ function renderAuth(){
   }
   const t=myTiers();
   const roleTxt=meU.admin?"ผู้ดูแลระบบ":ROLE_TH[meU.role]||"";
-  box.innerHTML=`<span><b id="meName"></b> · ${esc(roleTxt)}${t.length?" · "+esc(t.map(i=>TSHORT[i]).join(", ")):""}</span>${DEMO?"":'<button type="button" class="ghost sm" id="pinBtn">เปลี่ยน PIN</button>'}<button type="button" class="ghost sm" id="outBtn">ออกจากระบบ</button>`;
+  box.innerHTML=`<span><b id="meName"></b> · ${esc(roleTxt)}${t.length?" · "+esc(t.map(i=>TSHORT[i]).join(", ")):""}</span><button type="button" class="ghost sm" id="sigBtn">ลายมือชื่อ${meU.hasSig?"":" ⚠"}</button>${DEMO?"":'<button type="button" class="ghost sm" id="pinBtn">เปลี่ยน PIN</button>'}<button type="button" class="ghost sm" id="outBtn">ออกจากระบบ</button>`;
   $("meName").textContent=meU.name||meU.username;
   $("outBtn").addEventListener("click",async()=>{try{await api("logout")}catch(e){}signedOut()});
   if($("pinBtn"))$("pinBtn").addEventListener("click",()=>showPinChange(false));
+  $("sigBtn").title=meU.hasSig?"ดู/เปลี่ยนลายมือชื่อที่ใช้ลงนามผลการพิจารณา":"ยังไม่มีลายมือชื่อ ตั้งไว้เพื่อใช้ลงนามผลการพิจารณา";
+  $("sigBtn").addEventListener("click",()=>showSigEditor(null));
   if(meU.mustChange&&!DEMO)showPinChange(true);
+}
+/* ---------- ลายมือชื่อผู้ใช้ (ไฟล์ภาพ) ---------- */
+let mySigCache;                                   // undefined = ยังไม่โหลด, null = ไม่มี
+async function mySig(){if(mySigCache!==undefined)return mySigCache;try{const j=await api("getUserSig",{});mySigCache=j.png||null}catch(e){return null}return mySigCache}
+/** แปลงไฟล์ภาพ/ภาพที่เซ็นในกรอบ เป็น PNG พื้นโปร่งใส ครอปเฉพาะลายมือชื่อ ขนาดไม่เกินที่ชีตเก็บได้ */
+async function toSigPNG(src){
+  let img=src;
+  if(!(src instanceof HTMLCanvasElement)){
+    if(!/^image\/(png|jpeg|webp|gif|bmp)$/.test(src.type||""))throw new Error("ใช้ไฟล์ภาพ PNG หรือ JPG");
+    if(src.size>15e6)throw new Error("ไฟล์ใหญ่เกิน 15 MB");
+    const url=URL.createObjectURL(src);
+    try{img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error("อ่านไฟล์ภาพไม่ได้"));i.src=url})}finally{setTimeout(()=>URL.revokeObjectURL(url),1000)}
+  }
+  const W=img.naturalWidth||img.width,H=img.naturalHeight||img.height;if(!W||!H)throw new Error("ภาพว่าง");
+  const k=Math.min(1,1400/Math.max(W,H)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(W*k));c.height=Math.max(1,Math.round(H*k));
+  const x=c.getContext("2d");x.drawImage(img,0,0,c.width,c.height);
+  const d=x.getImageData(0,0,c.width,c.height),q=d.data;let x0=c.width,y0=c.height,x1=-1,y1=-1;
+  for(let y=0;y<c.height;y++)for(let i=0;i<c.width;i++){const o=(y*c.width+i)*4,a=q[o+3],lum=q[o]*.299+q[o+1]*.587+q[o+2]*.114;
+    const al=Math.round(a*Math.max(0,Math.min(1,(215-lum)/75)));q[o+3]=al;           // พื้นสีอ่อน → โปร่งใส
+    if(al>40){if(i<x0)x0=i;if(i>x1)x1=i;if(y<y0)y0=y;if(y>y1)y1=y}}
+  if(x1<0)throw new Error("ไม่พบลายมือชื่อในภาพ (ภาพว่างหรือหมึกสีอ่อนเกินไป)");
+  x.putImageData(d,0,0);
+  const pad=6;x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(c.width-1,x1+pad);y1=Math.min(c.height-1,y1+pad);
+  const cw=x1-x0+1,ch=y1-y0+1;let sc=Math.min(480/cw,160/ch,2);
+  for(let n=0;n<8;n++){const o=document.createElement("canvas");o.width=Math.max(1,Math.round(cw*sc));o.height=Math.max(1,Math.round(ch*sc));
+    const ox=o.getContext("2d");ox.imageSmoothingQuality="high";ox.drawImage(c,x0,y0,cw,ch,0,0,o.width,o.height);
+    const u=o.toDataURL("image/png");if(u.length<=SIG_MAX)return u;sc*=.8}
+  throw new Error("ภาพลายมือชื่อละเอียดเกินไป ลองครอปให้เหลือเฉพาะลายมือชื่อ");
+}
+function showSigEditor(target){                    // target = ผู้ใช้ที่ผู้ดูแลตั้งให้ (null = ตนเอง)
+  const box=$("pinBox");box.hidden=false;
+  const self=!target||target.username===meU.username,who=self?meU:target;
+  let newPng=null;
+  box.innerHTML=`<div class="sigbox"><h2 style="font-size:18px;margin:0">ลายมือชื่อ${self?"ของฉัน":" · "+esc(who.name||who.username)}</h2>
+    <p class="fine" style="margin:0">ใช้ลงนามในผลการพิจารณาและพิมพ์ลงแบบขออนุเคราะห์ฯ ระบบลงลายมือชื่อให้เฉพาะตอนที่ผู้พิจารณายืนยันผลด้วย PIN แล้วเท่านั้น และเก็บสำเนาลายมือชื่อ ณ เวลาที่ลงนามไว้กับรายการนั้น</p>
+    <div class="two"><div class="card"><b>ลายมือชื่อปัจจุบัน</b><div id="sgCur" class="fine">กำลังโหลด…</div></div>
+      <div class="card"><b>ลายมือชื่อใหม่</b><div id="sgNew" class="fine">ยังไม่ได้เลือก</div></div></div>
+    <div class="two"><div class="card"><b>ก. อัปโหลดไฟล์ภาพ</b><span class="fine">เซ็นด้วยปากกาสีเข้มบนกระดาษขาว ถ่ายภาพหรือสแกนให้ชัด (PNG/JPG) ระบบตัดพื้นขาวและครอปให้เอง</span><input type="file" id="sgFile" accept="image/png,image/jpeg,image/webp"></div>
+      <div class="card"><b>ข. เซ็นในกรอบ</b><div class="sigwrap"><canvas class="sigpad" id="sgCv" aria-label="ช่องเซ็นลายมือชื่อ" style="height:150px"></canvas><span class="hint" id="sgHint">ใช้นิ้วหรือเมาส์เซ็นชื่อ</span></div>
+        <div class="btns"><button type="button" class="ghost sm" id="sgClr">ล้าง</button><button type="button" class="ghost sm" id="sgUse">ใช้ลายมือชื่อที่เซ็น</button></div></div></div>
+    <label class="f pinrow">PIN ของท่าน (ยืนยันการตั้ง/ลบลายมือชื่อ)${DEMO?` <span class="fine">(โหมดทดลอง: ${DEMO_PIN})</span>`:""}<input type="password" id="sgPin" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+    <div class="btns"><button type="button" id="sgSave" disabled>บันทึกลายมือชื่อ</button><button type="button" class="ghost" id="sgDel" hidden>ลบลายมือชื่อ</button><button type="button" class="ghost" id="sgClose">ปิด</button></div>
+    <div class="msg" id="sgMsg" role="alert"></div></div>`;
+  scrollToEl(box);
+  const m=$("sgMsg"),pad=sigPad($("sgCv"),()=>{$("sgHint").hidden=true});
+  const setNew=u=>{newPng=u;$("sgNew").innerHTML=u?`<img class="sigimg" src="${u}" alt="ลายมือชื่อใหม่">`:"ยังไม่ได้เลือก";$("sgSave").disabled=!u};
+  const loadCur=async()=>{try{const j=await api("getUserSig",self?{}:{username:who.username});
+    $("sgCur").innerHTML=j.png?`<img class="sigimg" src="${j.png}" alt="ลายมือชื่อปัจจุบัน"><span class="fine">ตั้งเมื่อ ${thDT(j.updatedAt)}</span>`:"ยังไม่มีลายมือชื่อในระบบ";$("sgDel").hidden=!j.png}
+    catch(e){$("sgCur").textContent=ERR(e)}};
+  loadCur();
+  $("sgPin").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,6)});
+  $("sgFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;msg(m,"กำลังเตรียมภาพ…");try{setNew(await toSigPNG(f));msg(m,"ตรวจภาพลายมือชื่อใหม่ แล้วใส่ PIN เพื่อบันทึก","")}catch(x){setNew(null);msg(m,x.message,"err")}});
+  $("sgClr").addEventListener("click",()=>{pad.clear();$("sgHint").hidden=false});
+  $("sgUse").addEventListener("click",async()=>{if(pad.isEmpty()){msg(m,"เซ็นชื่อในกรอบก่อน","err");return}try{setNew(await toSigPNG($("sgCv")));msg(m,"")}catch(x){msg(m,x.message,"err")}});
+  $("sgClose").addEventListener("click",()=>{box.hidden=true;box.innerHTML=""});
+  const save=async png=>{const pin=$("sgPin").value;if(!/^\d{6}$/.test(pin)){msg(m,"ใส่ PIN ตัวเลข 6 หลัก","err");$("sgPin").focus();return}
+    msg(m,"กำลังบันทึก…");
+    try{const j=await api("setUserSig",{username:self?undefined:who.username,png,pin});
+      if(self){meU.hasSig=j.hasSig;mySigCache=png||null;renderAuth()}else if(adminList){const u=adminList.find(x=>x.username===who.username);if(u)u.hasSig=j.hasSig;renderRoles()}
+      $("sgPin").value="";setNew(null);await loadCur();msg(m,png?"บันทึกลายมือชื่อแล้ว":"ลบลายมือชื่อแล้ว","ok")}
+    catch(x){msg(m,ERR(x),"err");if(x&&x.error==="bad_pin"){$("sgPin").value="";$("sgPin").focus()}}};
+  $("sgSave").addEventListener("click",()=>newPng&&save(newPng));
+  $("sgDel").addEventListener("click",()=>{if(confirm("ลบลายมือชื่อ? ผลการพิจารณาที่ลงนามไปแล้วยังคงลายมือชื่อเดิมไว้"))save(null)});
 }
 function showPinChange(forced){
   const box=$("pinBox");box.hidden=false;
@@ -1273,7 +1368,16 @@ function docsLine(c){
   const X=D||{},yes=v=>v?"✓":"✗";
   return `${yes(X.record)} แบบบันทึกฯ · ${yes(X.request)} แบบขออนุเคราะห์ฯ · ${yes(X.doctor)} ความเห็นแพทย์ · ${yes(X.checklist)} เช็กลิสต์`;
 }
-const sigCache={};
+const sigCache={},decSigCache={};
+/** ลายมือชื่อผู้พิจารณาของรายการ พร้อมขนาดภาพ (ใช้พิมพ์/Word) */
+async function decSigsFor(c){
+  if(!c.id||!(c.history||[]).some(h=>h.signed))return[];
+  if(c.id in decSigCache)return decSigCache[c.id];
+  let list=[];try{list=(await api("decisionSigs",{id:c.id})).sigs||[]}catch(e){return[]}
+  await Promise.all(list.map(s=>new Promise(r=>{const i=new Image();i.onload=()=>{s.w=i.naturalWidth;s.h=i.naturalHeight;r()};i.onerror=()=>r();i.src=s.png})));
+  return decSigCache[c.id]=list;
+}
+async function reqFor(c){return reqModel(c,await sigFor(c),await decSigsFor(c))}
 async function sigFor(c){const d=c.doctor||{};if(d.status!=="done"||!d.hasSig||!c.id)return null;if(c.id in sigCache)return sigCache[c.id];try{const j=await api("getSig",{id:c.id});sigCache[c.id]=j.png||null}catch(e){return null}return sigCache[c.id]}
 function doctorBox(c){
   const d=c.doctor||{};
@@ -1324,7 +1428,7 @@ function renderDetail(scroll){
   <div><h3>เหตุผลตามเกณฑ์</h3><ul>${(c.why||[]).map(w=>`<li>${esc(w)}</li>`).join("")||"<li>–</li>"}</ul></div>
   ${c.swNote?`<div><h3>สรุปปัญหาทางสังคม</h3><p style="margin:4px 0 0;white-space:pre-wrap">${esc(c.swNote)}</p></div>`:""}
   <details><summary style="cursor:pointer;color:var(--accent);font-weight:600">ผลตรวจสิทธิและแหล่งทุน</summary><ul>${(c.rights||[]).map(r=>`<li>${esc(r)}</li>`).join("")}</ul></details>
-  <div><h3>ประวัติการพิจารณา</h3><ul class="hist">${(c.history||[]).map(x=>`<li><b>${esc(ACT[x.action]||x.action)}</b>${x.action==="escalate"?` → ${esc(TSHORT[Math.min(3,(+x.tier||0)+1)])}`:""}${["approve","submit","resubmit"].includes(x.action)?` · ${fmt(x.amount)} บาท`:""} · ${esc(nm(P,x.by))}${x.note?`<div>${esc(x.note)}</div>`:""}<div class="when">${thDT(x.at)}</div></li>`).join("")}</ul></div>`;
+  <div><h3>ประวัติการพิจารณา</h3><ul class="hist">${(c.history||[]).map(x=>`<li><b>${esc(ACT[x.action]||x.action)}</b>${x.action==="escalate"?` → ${esc(TSHORT[Math.min(3,(+x.tier||0)+1)])}`:""}${["approve","submit","resubmit"].includes(x.action)?` · ${fmt(x.amount)} บาท`:""} · ${esc(nm(P,x.by))}${x.signed?' · <span class="fine">✍ ลงนามแล้ว</span>':x.pinVerified?' · <span class="fine">ยืนยัน PIN</span>':""}${x.note?`<div>${esc(x.note)}</div>`:""}<div class="when">${thDT(x.at)}</div></li>`).join("")}</ul></div>`;
   if(c.status==="pending"){
     if(canDecide(c)){
       const lim=TIERS[myMax()][0];
@@ -1349,8 +1453,8 @@ function renderDetail(scroll){
   el.innerHTML=h;
   if(scroll&&window.matchMedia("(max-width:940px)").matches)scrollToEl($("qgrid"));
   $("backQ").addEventListener("click",()=>{selId=null;$("qgrid").classList.remove("sel");document.querySelectorAll(".qitem").forEach(x=>x.setAttribute("aria-current","false"));renderDetail();scrollToEl($("view-q"));});
-  $("pReq").addEventListener("click",async()=>printDoc(reqModel(c,await sigFor(c))));
-  $("wReq").addEventListener("click",async()=>downloadDoc(reqModel(c,await sigFor(c)),$("pMsg"),$("wReq")));
+  $("pReq").addEventListener("click",async()=>printDoc(await reqFor(c)));
+  $("wReq").addEventListener("click",async()=>downloadDoc(await reqFor(c),$("pMsg"),$("wReq")));
   $("pRec2").addEventListener("click",()=>printDoc(recModel(c,nm(P,c.submittedBy))));
   $("wRec2").addEventListener("click",()=>downloadDoc(recModel(c,nm(P,c.submittedBy)),$("pMsg"),$("wRec2")));
   if($("sigImg"))sigFor(c).then(p=>{if(p&&$("sigImg"))$("sigImg").innerHTML=`<img src="${p}" alt="ลายมือชื่อแพทย์">`});
@@ -1396,6 +1500,7 @@ function confirmDecide(c,action,amount,note){
       ${action==="escalate"?row("เสนอต่อ",esc(TSHORT[Math.min(3,c.tier+1)])):""}
       ${row("ความเห็น/เงื่อนไข",note?esc(note):"-")}
       ${row("ผู้พิจารณา",`${esc(meU.name||meU.username)} · ${esc(TSHORT[Math.max(0,myMax())])}`)}
+      ${row("ลายมือชื่อ",`<div class="sigrow" id="cfmSig"><span class="fine">กำลังโหลด…</span></div>`)}
     </dl>
     <label class="chk"><input type="checkbox" id="cfmOk">ข้าพเจ้าตรวจสอบข้อมูลข้างต้นแล้ว และยืนยันผลการพิจารณา</label>
     <label class="f pinrow">ใส่ PIN 6 หลักของท่านอีกครั้งเพื่อยืนยัน${DEMO?` <span class="fine">(โหมดทดลอง: ${DEMO_PIN})</span>`:""}
@@ -1419,9 +1524,9 @@ function confirmDecide(c,action,amount,note){
     if(!/^\d{6}$/.test(pin.value)){msg(m,"ใส่ PIN ตัวเลข 6 หลัก","err");pin.focus();return}
     busy=true;go.disabled=true;msg(m,"กำลังตรวจสอบ PIN และบันทึก…");
     try{
-      await api("decide",{id:c.id,tier:c.tier,decision:action,amount,note,pin:pin.value});
-      close();detailSig=null;await refresh(true);
-      msg($("dMsg")||$("pMsg"),`บันทึกผล "${ACT_TH[action]}" แล้ว`,"ok",true);
+      const r=await api("decide",{id:c.id,tier:c.tier,decision:action,amount,note,pin:pin.value});
+      delete decSigCache[c.id];close();detailSig=null;await refresh(true);
+      msg($("dMsg")||$("pMsg"),`บันทึกผล "${ACT_TH[action]}"${r&&r.signed?" และลงลายมือชื่อ":""}แล้ว`,"ok",true);
     }catch(e){
       busy=false;go.disabled=false;
       if(e&&e.error==="bad_pin"){msg(m,ERR(e),"err");pin.value="";pin.focus();return}
@@ -1430,6 +1535,8 @@ function confirmDecide(c,action,amount,note){
       if(e&&e.error==="conflict"){setTimeout(()=>{close();detailSig=null;refresh(true)},1600);}
     }
   });
+  mySig().then(p=>{const el=bg.querySelector("#cfmSig");if(!el)return;
+    el.innerHTML=p?`<img src="${p}" alt="ลายมือชื่อของท่าน"><span class="fine">ระบบลงลายมือชื่อนี้เมื่อยืนยัน PIN</span>`:`<span class="fine" style="color:var(--warn,#a15c00)">ยังไม่มีลายมือชื่อในระบบ ผลจะบันทึกโดยไม่มีภาพลายมือชื่อ (ตั้งได้ที่ปุ่ม "ลายมือชื่อ" ด้านบน)</span>`});
   setTimeout(()=>pin.focus(),30);
 }
 
@@ -1466,7 +1573,7 @@ function renderFinance(){
 }
 $("fList").addEventListener("click",async e=>{
   const t=e.target.closest("button");if(!t)return;const id=t.dataset.fp||t.dataset.fa||t.dataset.fc||t.dataset.fu;const c=cases.find(x=>x.id===id);
-  if(t.dataset.fp&&c){printDoc(reqModel(c,await sigFor(c)));return}
+  if(t.dataset.fp&&c){printDoc(await reqFor(c));return}
   if(t.dataset.fa){finOpen=id;renderFinance();return}
   if(t.dataset.fx){finOpen=null;renderFinance();return}
   if(t.dataset.fc||t.dataset.fu){t.disabled=true;try{await api("financeAck",{id,ref:t.dataset.fc?$("fRef").value.trim():"",note:t.dataset.fc?$("fNote").value.trim():"",undo:!!t.dataset.fu});finOpen=null;msg($("fMsg"),t.dataset.fu?"ยกเลิกการบันทึกแล้ว":"บันทึกแล้ว","ok");await refresh(true)}catch(x){msg($("fMsg"),ERR(x),"err");t.disabled=false}}
@@ -1591,8 +1698,8 @@ function renderRoles(){
   const d=document.createElement("div");d.className="tier";d.innerHTML=`<div class="hd"><h3>งานการเงิน</h3><span>เห็นข้อมูลการอนุมัติและบันทึกการเงิน</span></div><div class="ppl">${fin.length?fin.map(u=>`<span class="person">${esc(u.name)}</span>`).join(""):'<span class="fine">ยังไม่มีรายชื่อ</span>'}</div>`;$("tiers").append(d);
   const ab=$("adminBox");ab.hidden=!meU.admin;
   if(!meU.admin)return;
-  const rows=(adminList||[]).map(u=>`<tr><td>${esc(u.username)}</td><td>${esc(u.name)}</td><td>${esc(ROLE_TH[u.role]||"")}</td><td>${(u.tiers||[]).map(t=>esc(TSHORT[t])).join(", ")||"-"}</td><td>${u.admin?"✓":""}</td><td>${u.active?"ใช้งาน":"ปิด"}</td><td><button type="button" class="ghost sm" data-edit="${esc(u.username)}">แก้ไข</button></td></tr>`).join("");
-  $("userTable").innerHTML=adminList===null?'<p class="fine">กำลังโหลด…</p>':`<div class="tblwrap"><table class="ut"><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อที่แสดง</th><th>บทบาท</th><th>ระดับอำนาจอนุมัติ</th><th>ผู้ดูแล</th><th>สถานะ</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const rows=(adminList||[]).map(u=>`<tr><td>${esc(u.username)}</td><td>${esc(u.name)}</td><td>${esc(ROLE_TH[u.role]||"")}</td><td>${(u.tiers||[]).map(t=>esc(TSHORT[t])).join(", ")||"-"}</td><td>${u.admin?"✓":""}</td><td>${u.active?"ใช้งาน":"ปิด"}</td><td>${u.hasSig?"✓":"–"}</td><td><span class="btns" style="flex-wrap:nowrap"><button type="button" class="ghost sm" data-edit="${esc(u.username)}">แก้ไข</button><button type="button" class="ghost sm" data-usig="${esc(u.username)}">ลายมือชื่อ</button></span></td></tr>`).join("");
+  $("userTable").innerHTML=adminList===null?'<p class="fine">กำลังโหลด…</p>':`<div class="tblwrap"><table class="ut"><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อที่แสดง</th><th>บทบาท</th><th>ระดับอำนาจอนุมัติ</th><th>ผู้ดูแล</th><th>สถานะ</th><th>ลายมือชื่อ</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 function fillUserForm(u){
   $("uf-username").value=u?u.username:"";$("uf-username").readOnly=!!u;
@@ -1602,7 +1709,7 @@ function fillUserForm(u){
   $("uf-pin").value="";$("uf-pinlbl").textContent=u?"ตั้ง PIN ใหม่ (เว้นว่างถ้าไม่เปลี่ยน)":"PIN เริ่มต้น 6 หลัก (ผู้ใช้ต้องเปลี่ยนเมื่อเข้าครั้งแรก)";
   $("uf-title").textContent=u?"แก้ไขผู้ใช้ "+u.username:"เพิ่มผู้ใช้ใหม่";msg($("ufMsg"),"");
 }
-$("userTable").addEventListener("click",e=>{const b=e.target.closest("[data-edit]");if(!b)return;fillUserForm((adminList||[]).find(u=>u.username===b.dataset.edit));scrollToEl($("userForm"))});
+$("userTable").addEventListener("click",e=>{const g=e.target.closest("[data-usig]");if(g){showSigEditor((adminList||[]).find(u=>u.username===g.dataset.usig));return}const b=e.target.closest("[data-edit]");if(!b)return;fillUserForm((adminList||[]).find(u=>u.username===b.dataset.edit));scrollToEl($("userForm"))});
 $("uf-new").addEventListener("click",()=>fillUserForm(null));
 $("uf-save").addEventListener("click",async()=>{
   const isNew=!$("uf-username").readOnly;const pin=$("uf-pin").value.trim();
@@ -1679,7 +1786,7 @@ const metaOf=c=>c.id?`พิมพ์จากระบบเสนออนุ�
 const fileHN=c=>String(c.hn||"").replace(/[^\w-]/g,"");
 
 /* แบบขออนุเคราะห์และบริการทางสังคมสงเคราะห์ (ฉบับ 2569) */
-function reqModel(c,sig){
+function reqModel(c,sig,dsigs){
   const P=users,f=c.form||{};
   const rs=RIGHTS.map((_,i)=>f["rt"+i]||"");
   const allChecked=rs.every(v=>v==="na"||v==="done");
@@ -1696,7 +1803,8 @@ function reqModel(c,sig){
   const ap=[0,1,2,3].map(i=>{
     const hs=(c.history||[]).filter(h=>h.tier===i&&["approve","escalate","reject"].includes(h.action));
     const h=hs[hs.length-1];
-    if(h)return{res:{approve:"อนุมัติ",escalate:"เสนอ",reject:"ไม่อนุมัติ"}[h.action],name:pn(P,h.by),date:thDate(h.at),note:h.note||"",amount:h.action==="approve"?h.amount:null};
+    if(h){const sg=h.signed?(dsigs||[]).find(x=>x.at===h.at&&x.username===h.by)||(dsigs||[]).filter(x=>x.username===h.by&&x.action===h.action&&+x.tier===i).pop():null;
+      return{res:{approve:"อนุมัติ",escalate:"เสนอ",reject:"ไม่อนุมัติ"}[h.action],name:pn(P,h.by),date:thDate(h.at),note:h.note||"",amount:h.action==="approve"?h.amount:null,sig:sg||null};}
     if(i===0&&c.id&&(c.requestedTier??c.tier)>=1)return{res:"เสนอ",name:pn(P,c.submittedBy),date:thDate(c.submittedAt),note:""};
     return null;
   });
@@ -1735,7 +1843,7 @@ function reqModel(c,sig){
   const OPTS=[["อนุมัติ","เสนอ"],["อนุมัติ","เสนอ","ไม่อนุมัติ"],["อนุมัติ","เสนอ","ไม่อนุมัติ"],["อนุมัติ","ไม่อนุมัติ"]];
   const LBL=["นักสังคมสงเคราะห์\n(ไม่เกิน 3,000 บาท)","หัวหน้านักสังคมสงเคราะห์\n(3,001–20,000 บาท)","หัวหน้ากลุ่มภารกิจด้านบริการทุติยภูมิและตติยภูมิ/รองผู้อำนวยการฝ่ายการแพทย์ (20,001–50,000 บาท)","ผู้อำนวยการ\n(เกิน 50,000 บาท)"];
   B.push({k:"t",w:[3200,3000,1900,1502],tall:1,rows:[["ผู้มีอำนาจ (วงเงินต่อราย)","ผลการพิจารณา","ลงชื่อ","วันที่"],
-    ...[0,1,2,3].map(i=>{const a=ap[i];const res=OPTS[i].map(o=>BOX(a&&a.res===o)+" "+o).join("   ")+(a&&a.amount!=null?`\n${fmt(a.amount)} บาท`:"")+(a&&a.note?`\n${a.note}`:"");return[LBL[i],res,a?(a.name||"(บันทึกออนไลน์)"):"",a?a.date:""]})]});
+    ...[0,1,2,3].map(i=>{const a=ap[i];const res=OPTS[i].map(o=>BOX(a&&a.res===o)+" "+o).join("   ")+(a&&a.amount!=null?`\n${fmt(a.amount)} บาท`:"")+(a&&a.note?`\n${a.note}`:"");return[LBL[i],res,a?(a.sig?{img:a.sig.png,w:a.sig.w,h:a.sig.h,text:a.name||""}:(a.name||"(บันทึกออนไลน์)")):"",a?a.date:""]})]});
   B.push({k:"p",before:1,r:["อนุมัติ",T(appr&&lvl>=2,"อนุเคราะห์"),"จำนวน",V(appr&&lvl>=2?fmt(c.decision.amount):null,5),"บาท",T(appr&&lvl===1,"ค้างชำระ"),"จำนวน",V(appr&&lvl===1?fmt(c.decision.amount):null,5),"บาท"]});
   if(c.finance)B.push({k:"p",sm:1,r:[`การเงินบันทึกแล้ว ${thLong(c.finance.at)}${c.finance.ref?" เลขที่อ้างอิง "+c.finance.ref:""}`]});
   const notes=["1. วงเงินอำนาจอนุมัติเป็นไปตามคำสั่งมอบอำนาจของผู้อำนวยการ นับยอดรวมต่อการรับบริการ 1 ครั้ง หรือต่อการนอนโรงพยาบาล 1 ครั้ง ห้ามแยกใบแจ้งหนี้","2. เจ้าหน้าที่การเงิน พิมพ์รายการค่ารักษาพยาบาลพร้อมส่งเอกสารฉบับนี้คืนกลุ่มงานสังคมสงเคราะห์ เพื่อเสนอผู้มีอำนาจอนุมัติตามวงเงิน","3. กรณีค้างชำระ แนบหนังสือรับสภาพหนี้/สัญญาผ่อนชำระที่นิติกรจัดทำ"];
@@ -1802,7 +1910,7 @@ function docHTML(M){
     if(b.k==="box"){h+=(b.label?lnHTML([b.label],"ind"):"")+`<div class="box" style="--n:${b.n||2}">${esc(b.text||"")}</div>`;continue}
     if(b.k==="sig"){close();h+=`<div class="sig">${b.img?`<img src="${b.img}" alt="">`:""}${b.rows.map(r=>lnHTML(r,"fixed")).join("")}</div>`;continue}
     if(b.k==="t"){const tot=b.w.reduce((s,x)=>s+x,0);
-      h+=`<table><colgroup>${b.w.map(w=>`<col style="width:${(w/tot*100).toFixed(1)}%">`).join("")}</colgroup>${b.rows.map((r,ri)=>`<tr class="${b.boldLast&&ri===b.rows.length-1?"tot":""}">${r.map((c,ci)=>{const tag=ri===0?"th":"td";const cls=[(b.num||[]).includes(ci)&&ri>0?"n":"",(b.cc||[]).includes(ci)&&ri>0?"cc":""].join(" ");return`<${tag} class="${cls}"${b.tall&&ri>0?' style="height:13mm"':""}>${esc(c).replace(/\n/g,"<br>")}</${tag}>`}).join("")}</tr>`).join("")}</table>`;}
+      h+=`<table><colgroup>${b.w.map(w=>`<col style="width:${(w/tot*100).toFixed(1)}%">`).join("")}</colgroup>${b.rows.map((r,ri)=>`<tr class="${b.boldLast&&ri===b.rows.length-1?"tot":""}">${r.map((c,ci)=>{const tag=ri===0?"th":"td";const cls=[(b.num||[]).includes(ci)&&ri>0?"n":"",(b.cc||[]).includes(ci)&&ri>0?"cc":""].join(" ");const inner=c&&typeof c==="object"?`${c.img?`<img class="tsig" src="${c.img}" alt="ลายมือชื่อ">`:""}<div class="tsn">${esc(c.text||"")}</div>`:esc(c).replace(/\n/g,"<br>");return`<${tag} class="${cls}"${b.tall&&ri>0?' style="height:13mm"':""}>${inner}</${tag}>`}).join("")}</tr>`).join("")}</table>`;}
   }
   close();
   if(M.notes.length)h+=`<div class="notes"><b>หมายเหตุ :</b>${M.notes.map(n=>`<div>${esc(n)}</div>`).join("")}</div>`;
@@ -1855,6 +1963,10 @@ async function docDocx(M){
   const runs=(r,o={})=>r.flatMap((x,i)=>i?[new TextRun({text:" ",...o}),one(x,o)]:[one(x,o)]);
   const bd={style:BorderStyle.SINGLE,size:4,color:"000000"},borders={top:bd,bottom:bd,left:bd,right:bd};
   const kids=[];let brk=false;
+  const docSigCell=c=>{const out=[];
+    if(c.img){const bytes=Uint8Array.from(atob(c.img.split(",")[1]),ch=>ch.charCodeAt(0));const r=c.w&&c.h?c.w/c.h:3;const w=Math.min(130,Math.round(36*r)),h=Math.max(12,Math.round(w/r));
+      out.push(new Paragraph({alignment:AlignmentType.CENTER,children:[new ImageRun({type:"png",data:bytes,transformation:{width:w,height:h}})]}))}
+    out.push(new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:c.text||"",size:26})]}));return out};
   const P=(o)=>{const p=new Paragraph(Object.assign(brk?{pageBreakBefore:true}:{},o));brk=false;return p};
   for(const b of M.B){
     if(b.k==="pb"){brk=true;continue}
@@ -1871,7 +1983,7 @@ async function docDocx(M){
       const tot=b.w.reduce((s,x)=>s+x,0),ws=b.w.map(w=>Math.round(w/tot*CW));
       kids.push(new Table({width:{size:CW,type:WidthType.DXA},columnWidths:ws,rows:b.rows.map((r,ri)=>new TableRow({cantSplit:true,tableHeader:ri===0,height:b.tall&&ri>0?{value:700,rule:"atLeast"}:undefined,children:r.map((c,ci)=>new TableCell({borders,width:{size:ws[ci],type:WidthType.DXA},margins:{top:20,bottom:20,left:80,right:80},verticalAlign:VerticalAlign.CENTER,
         shading:ri===0?{fill:"ECECEC",type:ShadingType.CLEAR,color:"auto"}:undefined,
-        children:String(c).split("\n").map(line=>new Paragraph({alignment:ri===0||(b.cc||[]).includes(ci)?AlignmentType.CENTER:((b.num||[]).includes(ci)?AlignmentType.RIGHT:AlignmentType.LEFT),children:[new TextRun({text:line,bold:ri===0||(b.boldLast&&ri===b.rows.length-1)})]}))}))}))}));
+        children:c&&typeof c==="object"?docSigCell(c):String(c).split("\n").map(line=>new Paragraph({alignment:ri===0||(b.cc||[]).includes(ci)?AlignmentType.CENTER:((b.num||[]).includes(ci)?AlignmentType.RIGHT:AlignmentType.LEFT),children:[new TextRun({text:line,bold:ri===0||(b.boldLast&&ri===b.rows.length-1)})]}))}))}))}));
     }
   }
   kids.push(new Paragraph({spacing:{before:160},children:[new TextRun({text:M.meta,size:22,color:"555555"})]}));
