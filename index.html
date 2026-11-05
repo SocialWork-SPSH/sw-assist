@@ -525,6 +525,7 @@ body[data-mode="doctor"] .wrap,body[data-mode="doctor"] #auth,body[data-mode="do
         <div class="btns">
           <button type="button" id="submitBtn" hidden>ส่งเสนออนุมัติออนไลน์</button>
           <button type="button" class="ghost" id="copyBtn">คัดลอกสรุปผล</button>
+          <button type="button" class="ghost" id="newBtn">ล้างแบบประเมิน เริ่มรายใหม่</button>
         </div>
         <label class="chk" id="needDocRow" hidden><input type="checkbox" id="needDoc" checked>ขอความเห็นแพทย์ผู้รักษาผ่านลิงก์ก่อนเสนออนุมัติ</label>
         <div class="msg" id="submitMsg"></div>
@@ -872,6 +873,7 @@ function setExample(){
 }
 function clearForm(){$("f").reset();exampleOn=false;$("exBox").hidden=true;$("dt").value=todayISO();$("submitMsg").textContent="";$("submitMsg").className="msg";$("linkBox").hidden=true;compute();}
 $("clearBtn").addEventListener("click",()=>{clearForm();$("hn").focus();});
+$("newBtn").addEventListener("click",()=>{const any=$("hn").value||$("cost").value;if(any&&!exampleOn&&!confirm("ล้างข้อมูลที่กรอกไว้ทั้งหมด เพื่อเริ่มประเมินรายใหม่?"))return;if(editingId)endEdit();clearForm();window.scrollTo({top:0});$("hn").focus();});
 $("f").addEventListener("input",compute);$("f").addEventListener("change",compute);
 $("copyBtn").addEventListener("click",()=>{const t=$("summary").value;const ok=()=>{$("copyMsg").textContent="คัดลอกแล้ว วางลงโปรแกรมสังคมสงเคราะห์หรือแบบบันทึกได้";};
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,()=>{fallback()});}else fallback();
@@ -2007,7 +2009,8 @@ async function downloadDoc(M,msgEl,btn){
 /* ================= init ================= */
 if(DOC_PARAM){doctorPage();}
 else{
-  setExample();compute();
+  if(MODE==="demo")setExample();else clearForm();   // ระบบจริงเปิดด้วยแบบประเมินว่าง ข้อมูลตัวอย่างแสดงเฉพาะโหมดทดลอง
+  compute();
   renderAuth();renderAll();
   if(MODE!=="off"&&token){api("me").then(j=>{meU=j.me;setUsers(j.users);afterLogin()}).catch(()=>{renderAll()});}
 }
